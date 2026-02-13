@@ -2,354 +2,142 @@
 
 ## Сервисы (Services)
 
-### 1. Gemini Service (`services/geminiService.ts`)
+### 1. API Routes (Backend)
 
-Основной сервис для взаимодействия с Google Gemini API.
+Приложение использует Next.js API Routes для взаимодействия с Google Gemini и Supabase. Это позволяет скрыть API ключи и выполнять серверную логику.
 
-#### Основные функции
-
-##### `generateAd()`
+#### `POST /api/generate`
 
 Генерация объявления на основе категории, тона и данных формы.
 
-```typescript
-export const generateAd = async (
-  category: CategoryId,
-  tone: Tone,
-  data: FormData
-): Promise<{ adText: string; smartTip: string }>
+**URL**: `/api/generate`
+**Method**: `POST`
+**Content-Type**: `application/json`
+
+**Тело запроса (Request Body)**:
+```json
+{
+  "category": "electronics",
+  "tone": "polite",
+  "data": {
+    "model": "iPhone 13 Pro",
+    "specs": "256GB, АКБ 87%",
+    "condition": "normal",
+    "kit": "Коробка, кабель",
+    "price": "65000",
+    "image": "data:image/jpeg;base64,..." // Опционально
+  }
+}
 ```
 
-**Параметры**:
-| Параметр | Тип | Описание |
-|----------|-----|----------|
-| `category` | `CategoryId` | Категория: 'electronics' \| 'auto' \| 'services' \| 'clothing' |
-| `tone` | `Tone` | Тон: 'aggressive' \| 'polite' \| 'brief' \| 'restrained' \| 'natural' |
-| `data` | `FormData` | Данные формы (специфичны для категории) |
-
-**Возвращает**:
-```typescript
+**Ответ (Response)**:
+```json
 {
-  adText: string;      // Сгенерированное объявление (Markdown)
-  smartTip: string;    // Умный совет от AI (10-20 слов)
+  "adText": "**Продаю iPhone 13 Pro**\n\nТелефон в хорошем состоянии...",
+  "smartTip": "Сфотографируйте экран с включенным дисплеем, чтобы показать отсутствие битых пикселей."
 }
 ```
 
 **Ошибки**:
-- `Превышен лимит запросов (Quota Exceeded)` — 429 от Gemini
-- `Не удалось сгенерировать объявление` — общая ошибка
-
-**Пример использования**:
-```typescript
-const { adText, smartTip } = await generateAd('electronics', 'polite', {
-  model: 'iPhone 13 Pro',
-  specs: '256GB, АКБ 87%',
-  condition: 'normal',
-  kit: 'Коробка, кабель',
-  price: '65000'
-});
-```
+- `429`: Превышен лимит запросов (Quota Exceeded).
+- `503`: Сервис временно перегружен (Retry-After header).
+- `500`: Внутренняя ошибка сервера.
 
 ---
 
-##### `optimizeAdWithKeywords()`
+#### `POST /api/optimize`
 
 SEO-оптимизация существующего объявления.
 
-```typescript
-export const optimizeAdWithKeywords = async (
-  currentText: string,
-  category: CategoryId,
-  data: FormData
-): Promise<{ adText: string; keywords: string[] }>
+**URL**: `/api/optimize`
+**Method**: `POST`
+**Content-Type**: `application/json`
+
+**Тело запроса (Request Body)**:
+```json
+{
+  "currentText": "Продаю телефон...",
+  "category": "electronics",
+  "data": { ... }
+}
 ```
 
-**Параметры**:
-| Параметр | Тип | Описание |
-|----------|-----|----------|
-| `currentText` | `string` | Текущий текст объявления |
-| `category` | `CategoryId` | Категория товара |
-| `data` | `FormData` | Исходные данные формы |
-
-**Возвращает**:
-```typescript
+**Ответ (Response)**:
+```json
 {
-  adText: string;      // Переписанное объявление с ключевыми словами
-  keywords: string[];  // Массив SEO-ключевых слов (5-8 шт)
+  "adText": "Продаю **iPhone 13 Pro** (256 ГБ)...",
+  "keywords": ["iphone 13 pro", "айфон бу", "смартфон apple", "256 гб"]
 }
 ```
 
 ---
 
-#### Вспомогательные функции
+### 2. Client Services (`services/`)
 
-##### `getSystemInstruction()`
+#### `geminiService.ts`
 
-Возвращает системный промпт для Gemini с инструкциями по формату и стилю.
+Клиентская обертка для вызова API эндпоинтов.
 
-**Содержит**:
-- Требования к Markdown форматированию
-- Структура объявления (Hook → Body → Details → CTA)
-- Инструкции для генерации умного совета
-- Контекст российских площадок (Авито/Юла)
+- `generateAd(category, tone, data)`: Вызывает `/api/generate`.
+- `optimizeAdWithKeywords(currentText, category, data)`: Вызывает `/api/optimize`.
 
-##### `getDetailsString()`
+#### `supabase.ts`
 
-Формирует текстовое описание товара для промпта.
+Клиент для взаимодействия с базой данных Supabase.
 
-##### `buildPrompt()`
-
-Собирает финальный промпт с учётом тона.
-
-**Тоновые инструкции**:
 ```typescript
-const toneInstructions = {
-  'aggressive': 'TONE: Energetic, assertive, "Sales" focus. Use phrases like "Успей купить", "Торга нет".',
-  'polite': 'TONE: Friendly, sincere, trustworthy. Focus on care and history.',
-  'brief': 'TONE: Minimalist, dry, strict facts. List format preferred.',
-  'restrained': 'TONE: Calm, objective, professional. Balanced assessment.',
-  'natural': 'TONE: Ultra-realistic private seller. Casual, lower-case where appropriate, simple sentences.'
-};
+import { createClient } from '@supabase/supabase-js';
+export const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 ```
 
----
-
-### 2. Analytics Service (`services/analytics.ts`)
+#### `analytics.ts`
 
 Сервис для отслеживания событий в Google Analytics 4.
-
-#### Функции
-
-##### `logEvent()`
-
-```typescript
-export const logEvent = (
-  eventName: string,
-  params?: Record<string, any>
-): void
-```
-
-**Отслеживаемые события**:
-
-| Событие | Параметры | Когда вызывается |
-|---------|-----------|------------------|
-| `change_category` | `{ category }` | Смена категории |
-| `change_tone` | `{ tone }` | Смена тона |
-| `generate_ad_click` | `{ category, tone }` | Клик на генерацию |
-| `generate_ad_success` | `{ category }` | Успешная генерация |
-| `generate_ad_error` | `{ category, error }` | Ошибка генерации |
-| `optimize_ad_click` | `{ category }` | Клик на SEO |
-| `optimize_ad_success` | `{ category, keyword_count }` | Успешная оптимизация |
-| `optimize_ad_error` | `{ category, error }` | Ошибка оптимизации |
-| `copy_ad_click` | `{ category }` | Копирование текста |
-| `share_ad_click` | `{ method, category }` | Поделиться |
-| `toggle_theme` | `{ theme }` | Смена темы |
 
 ---
 
 ## Типы данных (`types.ts`)
 
 ### Категории
-
 ```typescript
 export type CategoryId = 'electronics' | 'auto' | 'services' | 'clothing';
 ```
 
 ### Тоны текста
-
 ```typescript
 export type Tone = 'aggressive' | 'polite' | 'brief' | 'restrained' | 'natural';
 ```
 
-### Данные форм по категориям
-
-#### ElectronicsData
-
-```typescript
-export interface ElectronicsData {
-  model: string;                    // Название модели (обязательное)
-  specs: string;                    // Характеристики (обязательное)
-  condition: 'ideal' | 'normal' | 'broken';  // Состояние
-  kit: string;                      // Комплект
-  image?: string;                   // Base64 фото
-  price?: string;                   // Цена
-}
-```
-
-#### AutoData
-
-```typescript
-export interface AutoData {
-  makeModel: string;    // Марка/модель (обязательное)
-  year: string;         // Год выпуска (обязательное)
-  mileage: string;      // Пробег (обязательное)
-  nuances: string;      // Нюансы по кузову/технике
-  price?: string;       // Цена
-}
-```
-
-#### ServicesData
-
-```typescript
-export interface ServicesData {
-  serviceType: string;   // Вид услуги (обязательное)
-  experience: string;  // Опыт работы (обязательное)
-  benefit: string;     // Главное преимущество (обязательное)
-  price?: string;      // Цена/ставка
-}
-```
-
-#### ClothingData
-
-```typescript
-export interface ClothingData {
-  type: string;         // Тип вещи (обязательное)
-  size: string;         // Размер (обязательное)
-  condition: string;    // Состояние (обязательное)
-  brand: string;        // Бренд
-  image?: string;       // Base64 фото
-  price?: string;       // Цена
-}
-```
-
-### Общее состояние приложения
-
-```typescript
-export interface AppState {
-  category: CategoryId;
-  tone: Tone;
-  formData: {
-    electronics: ElectronicsData;
-    auto: AutoData;
-    services: ServicesData;
-    clothing: ClothingData;
-  };
-  generatedText: string;
-  smartTip: string | null;
-  keywords: string[];
-  isLoading: boolean;
-  isOptimizing: boolean;
-  error: string | null;
-  validationErrors: Record<string, boolean>;
-}
-```
+### Данные форм (FormData)
+Типы данных зависят от выбранной категории (`ElectronicsData`, `AutoData`, `ServicesData`, `ClothingData`). См. исходный код `types.ts` для деталей.
 
 ---
 
-## Gemini API Configuration
+## Конфигурация Gemini (Server-side)
 
 ### Модель
+Используется модель `gemini-flash-latest` (или `gemini-1.5-flash` в зависимости от доступности) для оптимального баланса скорости и качества.
 
-```typescript
-const modelId = 'gemini-3-flash-preview';
-```
+### Retry Logic
+В API реализована логика повторных попыток (Exponential Backoff):
+- Максимум 3 попытки.
+- Задержки: 1s, 2s, 4s.
+- Обрабатывает коды 429 и 503.
 
-### Параметры генерации
-
-```typescript
-{
-  temperature: 0.8,           // Баланс креативности и точности
-  responseMimeType: "application/json",
-  responseSchema: {
-    type: Type.OBJECT,
-    properties: {
-      adText: { type: Type.STRING },
-      smartTip: { type: Type.STRING }
-    },
-    required: ["adText", "smartTip"]
-  }
-}
-```
-
-### Vision API (Изображения)
-
-Для категорий `electronics` и `clothing` поддерживается анализ изображений:
-
-```typescript
-const parts = [
-  { text: promptText },
-  {
-    inlineData: {
-      data: base64Image,
-      mimeType: 'image/jpeg'  // или 'image/png'
-    }
-  }
-];
-```
-
-**Ограничения**:
-- Максимальный размер: 4MB
-- Форматы: JPEG, PNG
-- Передаются как base64 Data URL
+### Vision API
+Для категорий `electronics` и `clothing` поддерживается передача изображений в формате Base64. Изображение анализируется моделью для добавления визуальных деталей в описание, но **удаляется** перед сохранением в базу данных.
 
 ---
 
 ## Environment Variables
 
+Для работы приложения требуются следующие переменные окружения (в `.env.local` или настройках Vercel):
+
 ```env
-# Обязательная
-NEXT_PUBLIC_API_KEY=your_gemini_api_key_here
+# Google Gemini API
+GOOGLE_API_KEY=your_gemini_api_key
 
-# Опциональная (Analytics)
-NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
-
-# Опциональная (SEO/Canonical)
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
-```
-
-### Получение API ключа
-
-1. Перейти на [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Создать новый API ключ
-3. Ограничить по HTTP referer (домену) в настройках
-4. Скопировать в `.env.local`
-
----
-
-## Rate Limiting
-
-### Клиентская квота
-
-```typescript
-const RPM_LIMIT = 15;  // Requests Per Minute
-```
-
-Реализация через localStorage:
-```typescript
-const QUOTA_KEY = 'ai_ads_quota_timestamps';
-
-// Сохраняем timestamp каждого запроса
-const timestamps: number[] = JSON.parse(localStorage.getItem(QUOTA_KEY) || '[]');
-timestamps.push(Date.now());
-localStorage.setItem(QUOTA_KEY, JSON.stringify(timestamps));
-
-// Фильтруем только последние 60 секунд
-const valid = timestamps.filter(t => now - t < 60000);
-```
-
-### Серверная квота (Gemini)
-
-- Free tier: 15 RPM, 1,000,000 TPM, 1,500 RPD
-- Проверить лимиты: [Google AI Dashboard](https://aistudio.google.com/app/plan_information)
-
----
-
-## JSON Schema ответа
-
-### Генерация объявления
-
-```json
-{
-  "adText": "**Заголовок объявления**\n\nТекст объявления с **жирным** и списками:\n- Пункт 1\n- Пункт 2",
-  "smartTip": "Сфотографируйте бирку с составом — это снимает вопросы."
-}
-```
-
-### SEO-оптимизация
-
-```json
-{
-  "rewrittenAd": "Оптимизированный текст...",
-  "keywords": ["iphone 13", "айфон", "256гб", "pro", "бу"]
-}
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
