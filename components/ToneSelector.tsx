@@ -8,7 +8,7 @@ interface ToneSelectorProps {
 }
 
 export const ToneSelector: React.FC<ToneSelectorProps> = ({ selectedTone, onChange }) => {
-  const tones: { id: Tone; label: string; icon: any }[] = [
+  const tones: { id: Tone; label: string; icon: React.ElementType }[] = [
     { id: 'aggressive', label: 'Продающий', icon: Zap },
     { id: 'polite', label: 'Вежливый', icon: Coffee },
     { id: 'brief', label: 'Краткий', icon: FileText },

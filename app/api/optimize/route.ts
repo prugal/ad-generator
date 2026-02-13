@@ -1,26 +1,27 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, type GenerateContentParameters } from "@google/genai";
 import { getDetailsString } from '../../../services/adHelpers';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: any, retries = 3) {
+async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: Omit<GenerateContentParameters, 'model'>, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
       return await ai.models.generateContent({
         model: modelId,
         ...params
-      });
-    } catch (error: any) {
+      } as GenerateContentParameters);
+    } catch (error: unknown) {
+      const err = error as { status?: number; message?: string };
       const isRetryable = 
-        error.status === 503 || 
-        error.status === 429 || 
-        error.message?.includes('503') || 
-        error.message?.includes('overloaded');
+        err.status === 503 || 
+        err.status === 429 || 
+        err.message?.includes('503') || 
+        err.message?.includes('overloaded');
       
       if (isRetryable && i < retries - 1) {
         const waitTime = 1000 * Math.pow(2, i); // 1s, 2s, 4s
-        console.log(`Gemini API Error ${error.status}. Retrying in ${waitTime}ms... (Attempt ${i + 1}/${retries})`);
+        console.log(`Gemini API Error ${err.status}. Retrying in ${waitTime}ms... (Attempt ${i + 1}/${retries})`);
         await delay(waitTime);
         continue;
       }
@@ -95,22 +96,23 @@ export async function POST(req: Request) {
     } else {
       throw new Error("No text returned from Gemini");
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Gemini Optimization Error:", error);
-    if (error.message?.includes('429') || error.status === 429 || error.message?.includes('quota')) {
+    const err = error as { status?: number; message?: string };
+    if (err.message?.includes('429') || err.status === 429 || err.message?.includes('quota')) {
         return NextResponse.json(
             { error: "Превышен лимит запросов. Пожалуйста, подождите минуту." },
             { status: 429 }
         );
     }
-    if (error.message?.includes('503') || error.status === 503) {
+    if (err.message?.includes('503') || err.status === 503) {
         return NextResponse.json(
             { error: "Сервис временно перегружен (503). Мы пытались повторить запрос, но безуспешно. Попробуйте через минуту." },
             { status: 503 }
         );
     }
     return NextResponse.json(
-        { error: `Не удалось оптимизировать объявление: ${error.message}` },
+        { error: `Не удалось оптимизировать объявление: ${err.message}` },
         { status: 500 }
     );
   }

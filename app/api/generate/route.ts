@@ -1,27 +1,28 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, type GenerateContentParameters, type Part } from "@google/genai";
 import { getSystemInstruction, buildPrompt } from '../../../services/adHelpers';
 import { supabase } from '../../../services/supabase';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: any, retries = 3) {
+async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: Omit<GenerateContentParameters, 'model'>, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
       return await ai.models.generateContent({
         model: modelId,
         ...params
-      });
-    } catch (error: any) {
+      } as GenerateContentParameters);
+    } catch (error: unknown) {
+      const err = error as { status?: number; message?: string };
       const isRetryable = 
-        error.status === 503 || 
-        error.status === 429 || 
-        error.message?.includes('503') || 
-        error.message?.includes('overloaded');
+        err.status === 503 || 
+        err.status === 429 || 
+        err.message?.includes('503') || 
+        err.message?.includes('overloaded');
       
       if (isRetryable && i < retries - 1) {
         const waitTime = 1000 * Math.pow(2, i); // 1s, 2s, 4s
-        console.log(`Gemini API Error ${error.status}. Retrying in ${waitTime}ms... (Attempt ${i + 1}/${retries})`);
+        console.log(`Gemini API Error ${err.status}. Retrying in ${waitTime}ms... (Attempt ${i + 1}/${retries})`);
         await delay(waitTime);
         continue;
       }
@@ -48,11 +49,11 @@ export async function POST(req: Request) {
     
     const promptText = buildPrompt(category, tone, data);
     
-    const parts: any[] = [{ text: promptText }];
+    const parts: Part[] = [{ text: promptText }];
 
     // Handle Image for Electronics and Clothing
     if (category === 'electronics' || category === 'clothing') {
-        const imgData = (data as any).image;
+        const imgData = (data as { image?: string }).image;
         if (imgData && typeof imgData === 'string' && imgData.startsWith('data:image')) {
              const base64Data = imgData.split(',')[1];
              const mimeType = imgData.split(';')[0].split(':')[1];
@@ -64,12 +65,14 @@ export async function POST(req: Request) {
                  }
              });
              
-             parts[0].text += "\n\n[System Note: An image is provided. Analyze it to add specific visual details to the description.]";
+             if (parts[0].text) {
+                parts[0].text += "\n\n[System Note: An image is provided. Analyze it to add specific visual details to the description.]";
+             }
         }
     }
 
     const response = await generateWithRetry(ai, modelId, {
-      contents: { parts },
+      contents: { role: 'user', parts },
       config: {
         systemInstruction: getSystemInstruction(),
         temperature: 0.8,
@@ -97,8 +100,8 @@ export async function POST(req: Request) {
       // Save to Supabase (non-blocking)
       const dataToSave = { ...data };
       // Remove large image data before saving to DB
-      if (dataToSave.image) {
-          delete (dataToSave as any).image;
+      if ((dataToSave as { image?: string }).image) {
+          delete (dataToSave as { image?: string }).image;
       }
 
       supabase.from('generated_ads').insert({
@@ -114,22 +117,23 @@ export async function POST(req: Request) {
     } else {
       throw new Error("No text returned from Gemini");
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Gemini API Error:", error);
-    if (error.message?.includes('429') || error.status === 429 || error.message?.includes('quota')) {
+    const err = error as { status?: number; message?: string };
+    if (err.message?.includes('429') || err.status === 429 || err.message?.includes('quota')) {
         return NextResponse.json(
             { error: "Превышен лимит запросов (Quota Exceeded). Пожалуйста, подождите минуту и попробуйте снова." },
             { status: 429 }
         );
     }
-    if (error.message?.includes('503') || error.status === 503) {
+    if (err.message?.includes('503') || err.status === 503) {
         return NextResponse.json(
             { error: "Сервис временно перегружен (503). Мы пытались повторить запрос, но безуспешно. Попробуйте через минуту." },
             { status: 503 }
         );
     }
     return NextResponse.json(
-        { error: `Не удалось сгенерировать объявление: ${error.message}` },
+        { error: `Не удалось сгенерировать объявление: ${err.message}` },
         { status: 500 }
     );
   }

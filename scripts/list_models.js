@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { GoogleGenAI } = require("@google/genai");
 
 async function listModels() {

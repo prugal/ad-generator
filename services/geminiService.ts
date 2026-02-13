@@ -24,9 +24,10 @@ export const generateAd = async (
       adText: result.adText,
       smartTip: result.smartTip
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Generate Ad API Error:", error);
-    if (error.name === 'TypeError' && error.message === 'fetch failed') {
+    const err = error as Error;
+    if (err.name === 'TypeError' && err.message === 'fetch failed') {
         throw new Error("Ошибка сети: не удалось подключиться к серверу. Проверьте соединение.");
     }
     throw error; // Re-throw to be handled by the UI
@@ -57,7 +58,7 @@ export const optimizeAdWithKeywords = async (
       adText: result.adText,
       keywords: result.keywords
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Optimize Ad API Error:", error);
     throw error;
   }

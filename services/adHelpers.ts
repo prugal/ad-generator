@@ -20,10 +20,10 @@ Example: "Сфотографируйте бирку с составом ткан
 };
 
 export const getDetailsString = (category: CategoryId, data: FormData): string => {
-  const priceInfo = (data as any).price ? `Price: ${(data as any).price}` : '';
+  const priceInfo = (data as { price?: string }).price ? `Price: ${(data as { price?: string }).price}` : '';
 
   switch (category) {
-    case 'electronics':
+    case 'electronics': {
       const elData = data as ElectronicsData;
       return `
         Category: Electronics
@@ -33,7 +33,8 @@ export const getDetailsString = (category: CategoryId, data: FormData): string =
         Condition: ${elData.condition === 'ideal' ? 'Perfect/Like New' : elData.condition === 'normal' ? 'Good/Normal' : 'Broken/For parts'}
         Kit/Accessories: ${elData.kit}
       `;
-    case 'auto':
+    }
+    case 'auto': {
       const autoData = data as AutoData;
       return `
         Category: Automobiles
@@ -43,7 +44,8 @@ export const getDetailsString = (category: CategoryId, data: FormData): string =
         Mileage: ${autoData.mileage}
         Body Nuances/Issues: ${autoData.nuances}
       `;
-    case 'services':
+    }
+    case 'services': {
       const servData = data as ServicesData;
       return `
         Category: Services
@@ -52,7 +54,8 @@ export const getDetailsString = (category: CategoryId, data: FormData): string =
         Experience: ${servData.experience}
         Key Benefit: ${servData.benefit}
       `;
-    case 'clothing':
+    }
+    case 'clothing': {
       const clothData = data as ClothingData;
       return `
         Category: Clothing/Apparel
@@ -62,6 +65,7 @@ export const getDetailsString = (category: CategoryId, data: FormData): string =
         Size: ${clothData.size}
         Condition: ${clothData.condition}
       `;
+    }
     default:
       return '';
   }

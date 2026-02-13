@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Search, Tag, Share2, X, Link as LinkIcon, Moon, Sun, AlertTriangle, Lightbulb, Info } from 'lucide-react';
-import { CategoryId, Tone, AppState } from '../types';
+import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, Link as LinkIcon, Moon, Sun, AlertTriangle, Lightbulb, Info } from 'lucide-react';
+import { CategoryId, AppState } from '../types';
 import { CategoryCard } from './CategoryCard';
 import { InputField } from './InputField';
 import { SelectField } from './SelectField';
@@ -175,7 +175,7 @@ export default function AdGenerator() {
           keywords: state.keywords,
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-      } catch (error) {
+      } catch {
         // Handle quota exceeded fallback
         try {
           const cleanFormData = {
@@ -192,7 +192,9 @@ export default function AdGenerator() {
             keywords: state.keywords,
           };
           localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSaveClean));
-        } catch (e) { }
+        } catch {
+            // ignore
+        }
       }
     }, 500);
 

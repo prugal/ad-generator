@@ -9,7 +9,7 @@ interface CategoryCardProps {
   onClick: () => void;
 }
 
-export const CategoryCard: React.FC<CategoryCardProps> = ({ id, label, icon: Icon, isSelected, onClick }) => {
+export const CategoryCard: React.FC<CategoryCardProps> = ({ label, icon: Icon, isSelected, onClick }) => {
   return (
     <button
       onClick={onClick}

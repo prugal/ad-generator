@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { UploadCloud, X, Image as ImageIcon } from 'lucide-react';
+import { UploadCloud, X } from 'lucide-react';
 
 interface ImageUploadProps {
   image: string | undefined;
@@ -44,6 +44,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ image, onImageChange }
       
       {image ? (
         <div className="relative w-full h-48 bg-gray-50 rounded-xl border border-gray-200 overflow-hidden group dark:bg-gray-800 dark:border-gray-700">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={image} alt="Preview" className="w-full h-full object-contain" />
             <button 
                 onClick={handleRemove}
