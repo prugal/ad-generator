@@ -32,10 +32,10 @@ export const InputField: React.FC<InputFieldProps> = ({
           placeholder={placeholder}
           rows={rows}
           className={`
-            w-full px-4 py-2.5 rounded-lg border transition-all outline-none resize-none placeholder:text-gray-400 dark:placeholder:text-gray-500
+            w-full px-4 py-2.5 rounded-lg border transition-all outline-none resize-none placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900
             ${error 
               ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:bg-red-900/10 dark:border-red-800' 
-              : 'border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:bg-gray-750 dark:focus:border-primary-500'
+              : 'border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:bg-gray-900 dark:focus:border-primary-500'
             }
           `}
         />
@@ -46,10 +46,10 @@ export const InputField: React.FC<InputFieldProps> = ({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className={`
-            w-full px-4 py-2.5 rounded-lg border transition-all outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500
+            w-full px-4 py-2.5 rounded-lg border transition-all outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900
             ${error 
               ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:bg-red-900/10 dark:border-red-800' 
-              : 'border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:bg-gray-750 dark:focus:border-primary-500'
+              : 'border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:bg-gray-900 dark:focus:border-primary-500'
             }
           `}
         />

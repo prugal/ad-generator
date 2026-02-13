@@ -28,7 +28,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({ label, value, onChange
             w-full appearance-none px-4 py-2.5 rounded-lg border transition-all outline-none cursor-pointer
             ${error 
               ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:bg-red-900/10 dark:border-red-800' 
-              : 'border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:bg-gray-750'
+              : 'border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:bg-gray-900'
             }
           `}
         >
@@ -39,8 +39,8 @@ export const SelectField: React.FC<SelectFieldProps> = ({ label, value, onChange
           ))}
         </select>
         <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500 dark:text-gray-400">
-          <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path>
+          <svg suppressHydrationWarning className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+            <path suppressHydrationWarning d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path>
           </svg>
         </div>
       </div>
