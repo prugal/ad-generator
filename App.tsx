@@ -79,9 +79,9 @@ export default function App() {
       const now = Date.now();
       // Keep only last 60 seconds
       const valid = timestamps.filter((t) => now - t < 60000);
-      
+
       setQuotaUsage(valid.length);
-      
+
       if (valid.length >= RPM_LIMIT) {
         // Find the oldest timestamp in the valid window to determine when space opens up
         const oldest = Math.min(...valid);
@@ -142,7 +142,7 @@ export default function App() {
     } catch (e) {
       console.warn('Failed to load state from local storage', e);
     }
-    
+
     // Default initial state
     return {
       category: 'electronics',
@@ -216,10 +216,10 @@ export default function App() {
 
   const handleCategoryChange = (id: CategoryId) => {
     logEvent('change_category', { category: id });
-    setState(prev => ({ 
-      ...prev, 
-      category: id, 
-      generatedText: '', 
+    setState(prev => ({
+      ...prev,
+      category: id,
+      generatedText: '',
       smartTip: null,
       keywords: [],
       error: null,
@@ -303,7 +303,7 @@ export default function App() {
     logEvent('generate_ad_click', { category: state.category, tone: state.tone });
     setState(prev => ({ ...prev, isLoading: true, error: null, generatedText: '', smartTip: null, keywords: [] }));
     registerRequest(); // Count the request immediately
-    
+
     try {
       const currentData = state.formData[state.category];
       const { adText, smartTip } = await generateAd(state.category, state.tone, currentData);
@@ -311,10 +311,10 @@ export default function App() {
       logEvent('generate_ad_success', { category: state.category });
     } catch (err) {
       logEvent('generate_ad_error', { category: state.category, error: err instanceof Error ? err.message : 'Unknown' });
-      setState(prev => ({ 
-        ...prev, 
-        isLoading: false, 
-        error: err instanceof Error ? err.message : 'Something went wrong' 
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: err instanceof Error ? err.message : 'Something went wrong'
       }));
     }
   };
@@ -339,7 +339,7 @@ export default function App() {
     }
 
     if (!state.generatedText) return;
-    
+
     logEvent('optimize_ad_click', { category: state.category });
     setState(prev => ({ ...prev, isOptimizing: true, error: null }));
     registerRequest(); // Count request
@@ -356,19 +356,19 @@ export default function App() {
       // Append tags to the text for the "final" copy version
       const fullText = `${cleanedAdText.trim()}\n\n🔍 Теги для поиска: ${keywords.join(', ')}`;
 
-      setState(prev => ({ 
-        ...prev, 
-        isOptimizing: false, 
+      setState(prev => ({
+        ...prev,
+        isOptimizing: false,
         generatedText: fullText,
         keywords: keywords
       }));
       logEvent('optimize_ad_success', { category: state.category, keyword_count: keywords.length });
     } catch (err) {
       logEvent('optimize_ad_error', { category: state.category, error: err instanceof Error ? err.message : 'Unknown' });
-      setState(prev => ({ 
-        ...prev, 
-        isOptimizing: false, 
-        error: err instanceof Error ? err.message : 'Optimization failed' 
+      setState(prev => ({
+        ...prev,
+        isOptimizing: false,
+        error: err instanceof Error ? err.message : 'Optimization failed'
       }));
     }
   };
@@ -383,8 +383,8 @@ export default function App() {
   };
 
   const handleShare = async () => {
-    logEvent('share_ad_click', { method: navigator.share ? 'native' : 'modal', category: state.category });
-    if (navigator.share) {
+    logEvent('share_ad_click', { method: typeof navigator.share !== 'undefined' ? 'native' : 'modal', category: state.category });
+    if (typeof navigator.share !== 'undefined') {
       try {
         await navigator.share({
           title: 'Продающее объявление',
@@ -403,22 +403,22 @@ export default function App() {
       case 'electronics':
         return (
           <>
-            <InputField 
-              label="Название модели" 
-              placeholder="Например: iPhone 13 Pro 256GB, Sony PlayStation 5" 
-              value={state.formData.electronics.model} 
-              onChange={(v) => updateFormData('model', v)} 
+            <InputField
+              label="Название модели"
+              placeholder="Например: iPhone 13 Pro 256GB, Sony PlayStation 5"
+              value={state.formData.electronics.model}
+              onChange={(v) => updateFormData('model', v)}
               error={state.validationErrors.model}
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               <InputField 
-                label="Цена (₽)" 
-                placeholder="Необязательно" 
-                value={state.formData.electronics.price || ''} 
-                onChange={(v) => updateFormData('price', v)} 
+              <InputField
+                label="Цена (₽)"
+                placeholder="Необязательно"
+                value={state.formData.electronics.price || ''}
+                onChange={(v) => updateFormData('price', v)}
               />
-               <SelectField 
-                label="Состояние" 
+              <SelectField
+                label="Состояние"
                 value={state.formData.electronics.condition}
                 onChange={(v) => updateFormData('condition', v)}
                 options={[
@@ -429,21 +429,21 @@ export default function App() {
                 error={state.validationErrors.condition}
               />
             </div>
-            <InputField 
-              label="Память / Характеристики" 
-              placeholder="Цвет, память, процессор (напр: Графит, 256ГБ, АКБ 87%)" 
-              value={state.formData.electronics.specs} 
-              onChange={(v) => updateFormData('specs', v)} 
+            <InputField
+              label="Память / Характеристики"
+              placeholder="Цвет, память, процессор (напр: Графит, 256ГБ, АКБ 87%)"
+              value={state.formData.electronics.specs}
+              onChange={(v) => updateFormData('specs', v)}
               error={state.validationErrors.specs}
             />
-            <InputField 
-              label="Комплект" 
-              placeholder="Коробка, зарядка, чек, гарантия, чехол в подарок..." 
-              value={state.formData.electronics.kit} 
-              onChange={(v) => updateFormData('kit', v)} 
+            <InputField
+              label="Комплект"
+              placeholder="Коробка, зарядка, чек, гарантия, чехол в подарок..."
+              value={state.formData.electronics.kit}
+              onChange={(v) => updateFormData('kit', v)}
               error={state.validationErrors.kit}
             />
-            <ImageUpload 
+            <ImageUpload
               image={state.formData.electronics.image}
               onImageChange={(img) => updateFormData('image', img)}
             />
@@ -452,43 +452,43 @@ export default function App() {
       case 'auto':
         return (
           <>
-            <InputField 
-              label="Марка / Модель" 
-              placeholder="Например: Toyota Camry, Hyundai Solaris, BMW X5" 
-              value={state.formData.auto.makeModel} 
-              onChange={(v) => updateFormData('makeModel', v)} 
+            <InputField
+              label="Марка / Модель"
+              placeholder="Например: Toyota Camry, Hyundai Solaris, BMW X5"
+              value={state.formData.auto.makeModel}
+              onChange={(v) => updateFormData('makeModel', v)}
               error={state.validationErrors.makeModel}
             />
-             <InputField 
-                label="Цена (₽)" 
-                placeholder="Необязательно" 
-                value={state.formData.auto.price || ''} 
-                onChange={(v) => updateFormData('price', v)} 
-              />
+            <InputField
+              label="Цена (₽)"
+              placeholder="Необязательно"
+              value={state.formData.auto.price || ''}
+              onChange={(v) => updateFormData('price', v)}
+            />
             <div className="grid grid-cols-2 gap-4">
-              <InputField 
-                label="Год выпуска" 
-                placeholder="2018" 
+              <InputField
+                label="Год выпуска"
+                placeholder="2018"
                 type="number"
-                value={state.formData.auto.year} 
-                onChange={(v) => updateFormData('year', v)} 
+                value={state.formData.auto.year}
+                onChange={(v) => updateFormData('year', v)}
                 error={state.validationErrors.year}
               />
-              <InputField 
-                label="Пробег (км)" 
-                placeholder="145000" 
+              <InputField
+                label="Пробег (км)"
+                placeholder="145000"
                 type="number"
-                value={state.formData.auto.mileage} 
-                onChange={(v) => updateFormData('mileage', v)} 
+                value={state.formData.auto.mileage}
+                onChange={(v) => updateFormData('mileage', v)}
                 error={state.validationErrors.mileage}
               />
             </div>
-            <InputField 
-              label="Нюансы по кузову / технике" 
-              placeholder="Не бита, не крашена, есть сколы на капоте, требует замены масла..." 
+            <InputField
+              label="Нюансы по кузову / технике"
+              placeholder="Не бита, не крашена, есть сколы на капоте, требует замены масла..."
               type="textarea"
-              value={state.formData.auto.nuances} 
-              onChange={(v) => updateFormData('nuances', v)} 
+              value={state.formData.auto.nuances}
+              onChange={(v) => updateFormData('nuances', v)}
               error={state.validationErrors.nuances}
             />
           </>
@@ -496,32 +496,32 @@ export default function App() {
       case 'services':
         return (
           <>
-            <InputField 
-              label="Вид услуги" 
-              placeholder="Например: Ремонт стиральных машин, Репетитор по математике" 
-              value={state.formData.services.serviceType} 
-              onChange={(v) => updateFormData('serviceType', v)} 
+            <InputField
+              label="Вид услуги"
+              placeholder="Например: Ремонт стиральных машин, Репетитор по математике"
+              value={state.formData.services.serviceType}
+              onChange={(v) => updateFormData('serviceType', v)}
               error={state.validationErrors.serviceType}
             />
-            <InputField 
-              label="Цена / Ставка (₽)" 
-              placeholder="Необязательно" 
-              value={state.formData.services.price || ''} 
-              onChange={(v) => updateFormData('price', v)} 
+            <InputField
+              label="Цена / Ставка (₽)"
+              placeholder="Необязательно"
+              value={state.formData.services.price || ''}
+              onChange={(v) => updateFormData('price', v)}
             />
-            <InputField 
-              label="Опыт работы" 
-              placeholder="Более 10 лет, Высшее образование, Сотни довольных клиентов..." 
-              value={state.formData.services.experience} 
-              onChange={(v) => updateFormData('experience', v)} 
+            <InputField
+              label="Опыт работы"
+              placeholder="Более 10 лет, Высшее образование, Сотни довольных клиентов..."
+              value={state.formData.services.experience}
+              onChange={(v) => updateFormData('experience', v)}
               error={state.validationErrors.experience}
             />
-            <InputField 
-              label="Главное преимущество" 
-              placeholder="Работаю без предоплаты, Выезд в течение часа, Гарантия 1 год..." 
+            <InputField
+              label="Главное преимущество"
+              placeholder="Работаю без предоплаты, Выезд в течение часа, Гарантия 1 год..."
               type="textarea"
-              value={state.formData.services.benefit} 
-              onChange={(v) => updateFormData('benefit', v)} 
+              value={state.formData.services.benefit}
+              onChange={(v) => updateFormData('benefit', v)}
               error={state.validationErrors.benefit}
             />
           </>
@@ -529,45 +529,45 @@ export default function App() {
       case 'clothing':
         return (
           <>
-            <InputField 
-              label="Тип вещи" 
-              placeholder="Например: Пуховик, Вечернее платье, Кроссовки..." 
-              value={state.formData.clothing.type} 
-              onChange={(v) => updateFormData('type', v)} 
+            <InputField
+              label="Тип вещи"
+              placeholder="Например: Пуховик, Вечернее платье, Кроссовки..."
+              value={state.formData.clothing.type}
+              onChange={(v) => updateFormData('type', v)}
               error={state.validationErrors.type}
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               <InputField 
-                label="Цена (₽)" 
-                placeholder="Необязательно" 
-                value={state.formData.clothing.price || ''} 
-                onChange={(v) => updateFormData('price', v)} 
+              <InputField
+                label="Цена (₽)"
+                placeholder="Необязательно"
+                value={state.formData.clothing.price || ''}
+                onChange={(v) => updateFormData('price', v)}
               />
-              <InputField 
-                label="Бренд" 
-                placeholder="Zara, Nike, H&M..." 
-                value={state.formData.clothing.brand} 
-                onChange={(v) => updateFormData('brand', v)} 
+              <InputField
+                label="Бренд"
+                placeholder="Zara, Nike, H&M..."
+                value={state.formData.clothing.brand}
+                onChange={(v) => updateFormData('brand', v)}
                 error={state.validationErrors.brand}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <InputField 
-                label="Размер" 
-                placeholder="S (42-44), 38 EUR, Рост 170..." 
-                value={state.formData.clothing.size} 
-                onChange={(v) => updateFormData('size', v)} 
+              <InputField
+                label="Размер"
+                placeholder="S (42-44), 38 EUR, Рост 170..."
+                value={state.formData.clothing.size}
+                onChange={(v) => updateFormData('size', v)}
                 error={state.validationErrors.size}
               />
-               <InputField 
-                label="Состояние" 
-                placeholder="Новое с биркой, б/у..." 
-                value={state.formData.clothing.condition} 
-                onChange={(v) => updateFormData('condition', v)} 
+              <InputField
+                label="Состояние"
+                placeholder="Новое с биркой, б/у..."
+                value={state.formData.clothing.condition}
+                onChange={(v) => updateFormData('condition', v)}
                 error={state.validationErrors.condition}
               />
             </div>
-            <ImageUpload 
+            <ImageUpload
               image={state.formData.clothing.image}
               onImageChange={(img) => updateFormData('image', img)}
             />
@@ -590,51 +590,51 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
       <RulesModal isOpen={showRules} onClose={() => setShowRules(false)} />
-      
+
       {/* Confirmation Modal */}
       {showConfirmModal && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowConfirmModal(false)}>
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-gray-100 dark:border-gray-700" onClick={e => e.stopPropagation()}>
-                    <div className="p-6 text-center">
-                        <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600 dark:text-amber-400">
-                            <AlertTriangle className="w-6 h-6" />
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Генерация нового объявления</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Текущий результат будет потерян. Вы уверены, что хотите продолжить?
-                        </p>
-                    </div>
-                    <div className="flex border-t border-gray-100 dark:border-gray-700">
-                        <button 
-                            onClick={() => setShowConfirmModal(false)}
-                            className="flex-1 p-4 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors border-r border-gray-100 dark:border-gray-700"
-                        >
-                            Отмена
-                        </button>
-                        <button 
-                            onClick={confirmGenerate}
-                            className="flex-1 p-4 text-primary-600 dark:text-primary-400 font-bold hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
-                        >
-                            Да, создать
-                        </button>
-                    </div>
-                </div>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowConfirmModal(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-gray-100 dark:border-gray-700" onClick={e => e.stopPropagation()}>
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600 dark:text-amber-400">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Генерация нового объявления</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Текущий результат будет потерян. Вы уверены, что хотите продолжить?
+              </p>
             </div>
+            <div className="flex border-t border-gray-100 dark:border-gray-700">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 p-4 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors border-r border-gray-100 dark:border-gray-700"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={confirmGenerate}
+                className="flex-1 p-4 text-primary-600 dark:text-primary-400 font-bold hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+              >
+                Да, создать
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-      
+
       <div className="max-w-2xl mx-auto space-y-8">
-        
+
         {/* Header */}
         <div className="text-center space-y-2 relative">
           <div className="absolute top-0 right-0 flex items-center gap-2">
-            <button 
+            <button
               onClick={() => setShowRules(true)}
               className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
               title="Правила и тарифы"
             >
               <Info className="w-5 h-5" />
             </button>
-            <button 
+            <button
               onClick={toggleTheme}
               className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
               title={isDarkMode ? "Светлая тема" : "Темная тема"}
@@ -656,40 +656,40 @@ export default function App() {
 
         {/* Main Card */}
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-          
+
           {/* Block 1: Categories */}
           <div className="p-6 sm:p-8 bg-gradient-to-b from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900">
             <h2 className="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 ml-1">
               Шаг 1. Выберите категорию
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <CategoryCard 
-                id="electronics" 
-                label="Электроника" 
-                icon={Smartphone} 
-                isSelected={state.category === 'electronics'} 
-                onClick={() => handleCategoryChange('electronics')} 
+              <CategoryCard
+                id="electronics"
+                label="Электроника"
+                icon={Smartphone}
+                isSelected={state.category === 'electronics'}
+                onClick={() => handleCategoryChange('electronics')}
               />
-              <CategoryCard 
-                id="auto" 
-                label="Авто" 
-                icon={Car} 
-                isSelected={state.category === 'auto'} 
-                onClick={() => handleCategoryChange('auto')} 
+              <CategoryCard
+                id="auto"
+                label="Авто"
+                icon={Car}
+                isSelected={state.category === 'auto'}
+                onClick={() => handleCategoryChange('auto')}
               />
-              <CategoryCard 
-                id="services" 
-                label="Услуги" 
-                icon={Briefcase} 
-                isSelected={state.category === 'services'} 
-                onClick={() => handleCategoryChange('services')} 
+              <CategoryCard
+                id="services"
+                label="Услуги"
+                icon={Briefcase}
+                isSelected={state.category === 'services'}
+                onClick={() => handleCategoryChange('services')}
               />
-              <CategoryCard 
-                id="clothing" 
-                label="Одежда" 
-                icon={Shirt} 
-                isSelected={state.category === 'clothing'} 
-                onClick={() => handleCategoryChange('clothing')} 
+              <CategoryCard
+                id="clothing"
+                label="Одежда"
+                icon={Shirt}
+                isSelected={state.category === 'clothing'}
+                onClick={() => handleCategoryChange('clothing')}
               />
             </div>
           </div>
@@ -701,45 +701,45 @@ export default function App() {
             <h2 className="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 ml-1">
               Шаг 2. Заполните детали
             </h2>
-            
+
             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300" key={state.category}>
               {renderForm()}
               <div className="pt-2">
-                <ToneSelector 
-                  selectedTone={state.tone} 
+                <ToneSelector
+                  selectedTone={state.tone}
                   onChange={(t) => {
                     logEvent('change_tone', { tone: t });
-                    setState(s => ({...s, tone: t}));
-                  }} 
+                    setState(s => ({ ...s, tone: t }));
+                  }}
                 />
               </div>
             </div>
 
             {/* Quota Counter UI */}
             <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-               <div className="flex justify-between items-center mb-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
-                 <span>Лимит запросов (в минуту)</span>
-                 {quotaUsage >= RPM_LIMIT ? (
-                    <span className="text-red-500 font-bold flex items-center gap-1">
-                       <AlertTriangle className="w-3 h-3" />
-                       Сброс через {timeUntilReset} сек.
-                    </span>
-                 ) : (
-                    <span>{quotaUsage} / {RPM_LIMIT}</span>
-                 )}
-               </div>
-               <div className="h-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full transition-all duration-500 ease-out ${getQuotaColor()}`} 
-                    style={{ width: `${getQuotaPercentage()}%` }}
-                  />
-               </div>
+              <div className="flex justify-between items-center mb-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+                <span>Лимит запросов (в минуту)</span>
+                {quotaUsage >= RPM_LIMIT ? (
+                  <span className="text-red-500 font-bold flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    Сброс через {timeUntilReset} сек.
+                  </span>
+                ) : (
+                  <span>{quotaUsage} / {RPM_LIMIT}</span>
+                )}
+              </div>
+              <div className="h-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-500 ease-out ${getQuotaColor()}`}
+                  style={{ width: `${getQuotaPercentage()}%` }}
+                />
+              </div>
             </div>
 
             {/* Error Message */}
             {state.error && (
               <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-100 dark:border-red-900/50 flex items-center gap-2">
-                 <span>⚠️</span> {state.error}
+                <span>⚠️</span> {state.error}
               </div>
             )}
 
@@ -750,8 +750,8 @@ export default function App() {
               className={`
                 w-full py-4 px-6 rounded-xl font-bold text-white text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all
                 flex items-center justify-center gap-2 relative overflow-hidden group
-                ${state.isLoading || quotaUsage >= RPM_LIMIT 
-                  ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed opacity-80' 
+                ${state.isLoading || quotaUsage >= RPM_LIMIT
+                  ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed opacity-80'
                   : 'bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 dark:from-primary-500 dark:to-indigo-500'
                 }
               `}
@@ -765,10 +765,10 @@ export default function App() {
                   Думаю...
                 </>
               ) : quotaUsage >= RPM_LIMIT ? (
-                 <>
-                   <RefreshCw className="w-5 h-5 animate-spin-slow" />
-                   Ожидание сброса лимита...
-                 </>
+                <>
+                  <RefreshCw className="w-5 h-5 animate-spin-slow" />
+                  Ожидание сброса лимита...
+                </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
@@ -789,8 +789,8 @@ export default function App() {
                   Готовое объявление
                 </h3>
                 <div className="flex gap-2">
-                  <button 
-                    onClick={handleGenerateClick} 
+                  <button
+                    onClick={handleGenerateClick}
                     disabled={quotaUsage >= RPM_LIMIT}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Сгенерировать еще раз"
@@ -799,25 +799,25 @@ export default function App() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
-                 <article className="prose prose-sm sm:prose prose-indigo dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white">
-                    <ReactMarkdown>{state.generatedText}</ReactMarkdown>
-                 </article>
+                <article className="prose prose-sm sm:prose prose-indigo dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white">
+                  <ReactMarkdown>{state.generatedText}</ReactMarkdown>
+                </article>
               </div>
 
               {/* Smart Tip Block (Contextual Hints) */}
               {state.smartTip && (
                 <div className="mt-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-                   <div className="p-1.5 bg-amber-100 dark:bg-amber-800/50 rounded-full flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5">
-                      <Lightbulb className="w-4 h-4" />
-                   </div>
-                   <div>
-                      <h4 className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-0.5">Совет от AI:</h4>
-                      <p className="text-sm text-amber-700 dark:text-amber-200/90 leading-relaxed">
-                        {state.smartTip}
-                      </p>
-                   </div>
+                  <div className="p-1.5 bg-amber-100 dark:bg-amber-800/50 rounded-full flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5">
+                    <Lightbulb className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-0.5">Совет от AI:</h4>
+                    <p className="text-sm text-amber-700 dark:text-amber-200/90 leading-relaxed">
+                      {state.smartTip}
+                    </p>
+                  </div>
                 </div>
               )}
 
@@ -825,8 +825,8 @@ export default function App() {
               {state.keywords.length > 0 && (
                 <div className="mt-4 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center gap-2 mb-2">
-                     <Tag className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                     <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">SEO Ключи (добавлены в текст):</span>
+                    <Tag className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">SEO Ключи (добавлены в текст):</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {state.keywords.map((keyword, index) => (
@@ -841,7 +841,7 @@ export default function App() {
               {/* Post-generation Actions Block (SEO) */}
               {!state.keywords.length && (
                 <div className="mt-4 flex flex-col sm:flex-row gap-3">
-                   <button
+                  <button
                     onClick={handleOptimize}
                     disabled={state.isOptimizing || quotaUsage >= RPM_LIMIT}
                     className="flex-1 p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 rounded-xl flex items-center justify-center sm:justify-start gap-3 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
@@ -862,8 +862,8 @@ export default function App() {
                   onClick={handleCopy}
                   className={`
                     w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-200
-                    ${copied 
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' 
+                    ${copied
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
                       : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750 hover:border-gray-300 dark:hover:border-gray-600'
                     }
                   `}
@@ -894,49 +894,49 @@ export default function App() {
 
         {/* Share Modal */}
         {showShareModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowShareModal(false)}>
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-gray-100 dark:border-gray-700" onClick={e => e.stopPropagation()}>
-                    <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">Поделиться</h3>
-                        <button onClick={() => setShowShareModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-500 dark:text-gray-400 transition-colors">
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-                    <div className="p-4 space-y-3">
-                        <button 
-                            onClick={() => {
-                                handleCopy();
-                                setShowShareModal(false);
-                            }}
-                            className="w-full flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left group"
-                        >
-                            <div className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm text-primary-600 dark:text-primary-400 group-hover:scale-110 transition-transform">
-                                <Copy className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <div className="font-semibold text-gray-900 dark:text-white">Скопировать текст</div>
-                                <div className="text-sm text-gray-500 dark:text-gray-400">Сохранить в буфер обмена</div>
-                            </div>
-                        </button>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowShareModal(false)}>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-gray-100 dark:border-gray-700" onClick={e => e.stopPropagation()}>
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h3 className="font-semibold text-gray-900 dark:text-white">Поделиться</h3>
+                <button onClick={() => setShowShareModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-500 dark:text-gray-400 transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-4 space-y-3">
+                <button
+                  onClick={() => {
+                    handleCopy();
+                    setShowShareModal(false);
+                  }}
+                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left group"
+                >
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm text-primary-600 dark:text-primary-400 group-hover:scale-110 transition-transform">
+                    <Copy className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-white">Скопировать текст</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Сохранить в буфер обмена</div>
+                  </div>
+                </button>
 
-                        <button 
-                            onClick={() => {
-                                navigator.clipboard.writeText(window.location.href);
-                                setShowShareModal(false);
-                            }}
-                            className="w-full flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left group"
-                        >
-                            <div className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                                <LinkIcon className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <div className="font-semibold text-gray-900 dark:text-white">Ссылка на приложение</div>
-                                <div className="text-sm text-gray-500 dark:text-gray-400">{window.location.host}</div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    setShowShareModal(false);
+                  }}
+                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left group"
+                >
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                    <LinkIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-white">Ссылка на приложение</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{window.location.host}</div>
+                  </div>
+                </button>
+              </div>
             </div>
+          </div>
         )}
 
       </div>
