@@ -11,6 +11,7 @@
 - **[03-api-reference.md](./03-api-reference.md)** — API документация, сервисы
 - **[04-components.md](./04-components.md)** — Референс компонентов React
 - **[05-deployment.md](./05-deployment.md)** — Руководство по деплою
+- **[06-ci-cd.md](./06-ci-cd.md)** — Руководство по CI/CD
 
 ## Ключевые возможности
 
