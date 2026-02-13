@@ -1,0 +1,5 @@
+{
+  "name": "AI Classifieds Ad Generator",
+  "description": "A modern, mobile-first SaaS tool to generate catchy classified ads for Avito and Youla using AI.",
+  "requestFramePermissions": []
+}
