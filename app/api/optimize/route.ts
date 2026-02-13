@@ -27,6 +27,7 @@ async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: any, 
       throw error;
     }
   }
+  throw new Error("Failed to generate content after retries");
 }
 
 export async function POST(req: Request) {
