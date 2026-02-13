@@ -101,7 +101,7 @@ interface CategoryCardProps {
 ```
 
 **Визуальные состояния**:
-- **Selected**: `border-primary-600`, `bg-primary-50/50`, `scale-105`, пульсирующий индикатор
+- **Selected**: `border-primary-600`, `bg-primary-50/50`, `scale-105`, пульсирующий индикатор в правом верхнем углу
 - **Default**: `border-gray-100`, hover эффекты
 
 **Использование**:
@@ -341,7 +341,7 @@ Landing страница с:
 'bg-white dark:bg-gray-800'
 'text-gray-900 dark:text-white'
 'border-gray-200 dark:border-gray-700'
-'hover:bg-gray-50 dark:hover:bg-gray-750'
+'hover:bg-gray-50 dark:hover:bg-gray-800'
 ```
 
 ### Цветовая палитра (Primary)

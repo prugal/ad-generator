@@ -25,8 +25,8 @@
 
 ## Технологический стек
 
-- **Frontend**: Next.js 14 + React 18 + TypeScript
-- **Styling**: TailwindCSS + PostCSS
+- **Frontend**: Next.js 16.1.6 + React 19.2.4 + TypeScript 5.5.3
+- **Styling**: TailwindCSS v4 + PostCSS
 - **AI API**: Google Gemini 3 Flash Preview
 - **Icons**: Lucide React
 - **Markdown**: React Markdown

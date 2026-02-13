@@ -28,7 +28,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({ label, value, onChange
             w-full appearance-none px-4 py-2.5 rounded-lg border transition-all outline-none cursor-pointer
             ${error 
               ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:bg-red-900/10 dark:border-red-800' 
-              : 'border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:bg-gray-750'
+              : 'border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:bg-gray-900'
             }
           `}
         >

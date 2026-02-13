@@ -39,16 +39,15 @@ AI Classifieds Ad Generator — это клиентское веб-прилож�
 ### Frontend Core
 | Технология | Версия | Назначение |
 |------------|--------|------------|
-| Next.js | 14.2.5 | React фреймворк с App Router |
-| React | 18.3.1 | UI библиотека |
+| Next.js | 16.1.6 | React фреймворк с App Router |
+| React | 19.2.4 | UI библиотека |
 | TypeScript | 5.5.3 | Типизация |
 
 ### Стилизация
-| Технология | Назначение |
-|------------|------------|
-| TailwindCSS | Утилитарный CSS фреймворк |
-| PostCSS | Обработка CSS |
-| Autoprefixer | Префиксы для браузеров |
+| Технология | Версия | Назначение |
+|------------|--------|------------|
+| TailwindCSS | v4.1.18 | Утилитарный CSS фреймворк |
+| @tailwindcss/postcss | v4 | PostCSS плагин для Tailwind v4 |
 
 ### AI и данные
 | Технология | Назначение |
@@ -86,8 +85,9 @@ d:\Work\Projects\ai-classifieds-ad-generator/
 ├── docs/                        # Документация
 ├── public/                      # Статические файлы
 ├── types.ts                     # TypeScript интерфейсы
-├── tailwind.config.js           # Конфигурация Tailwind
 ├── next.config.mjs              # Конфигурация Next.js
+├── postcss.config.js           # Конфигурация PostCSS для Tailwind v4
+├── tailwind.config.js           # Конфигурация цветов (для Tailwind v4 тема в globals.css)
 └── package.json                 # Зависимости
 ```
 
@@ -159,9 +159,9 @@ const QUOTA_KEY = 'ai_ads_quota_timestamps';
 
 ### 5. Темизация (Dark Mode)
 
-```typescript
-// Tailwind dark mode через class strategy
-darkMode: 'class' // в tailwind.config.js
+```css
+// Tailwind v4 dark mode через @custom-variant в globals.css
+@custom-variant dark (&:is(.dark *));
 
 // Переключение темы
 document.documentElement.classList.add('dark');

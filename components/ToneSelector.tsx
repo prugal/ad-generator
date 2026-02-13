@@ -35,11 +35,11 @@ export const ToneSelector: React.FC<ToneSelectorProps> = ({ selectedTone, onChan
                 ${spanClass}
                 ${isSelected 
                   ? 'bg-primary-600 text-white border-primary-600 shadow-md transform scale-[1.02] dark:bg-primary-600 dark:border-primary-500' 
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-750'
+                  : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
                 }
               `}
             >
-              <Icon className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-gray-400 dark:text-gray-500'}`} />
+              <Icon className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
               <span className="text-xs font-medium text-center leading-tight">{t.label}</span>
             </button>
           );

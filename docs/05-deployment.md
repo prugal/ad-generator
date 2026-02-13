@@ -318,16 +318,21 @@ npm install
 - Убедиться что localStorage доступен только после mount
 - Проверить `mounted` state в AdGenerator
 
-### Стили не применяются
+### Стили не применяются / Dark mode не работает
 
-**Причина**: Неверная конфигурация Tailwind
+**Причина**: Неверная конфигурация Tailwind v4 или повреждённый кэш
 
 **Решение**:
 ```bash
-# Пересобрать Tailwind
-rm -rf .next
-npm run build
+# Очистить кэш и пересобрать
+Remove-Item -Recurse -Force .next
+npm run dev
 ```
+
+**Для Tailwind v4**:
+- Тема настраивается в `globals.css` через `@custom-variant dark`
+- Конфигурация PostCSS: `postcss.config.js` с `@tailwindcss/postcss`
+- Проверить что нет старых классов (например `gray-750` → `gray-800`)
 
 ---
 

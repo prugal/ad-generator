@@ -596,7 +596,7 @@ export default function AdGenerator() {
             <div className="flex border-t border-gray-100 dark:border-gray-700">
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="flex-1 p-4 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors border-r border-gray-100 dark:border-gray-700"
+                className="flex-1 p-4 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-r border-gray-100 dark:border-gray-700"
               >
                 Отмена
               </button>
@@ -707,7 +707,7 @@ export default function AdGenerator() {
             </div>
 
             {/* Quota Counter UI */}
-            <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
               <div className="flex justify-between items-center mb-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
                 <span>Лимит запросов (в минуту)</span>
                 {quotaUsage >= RPM_LIMIT ? (
@@ -855,7 +855,7 @@ export default function AdGenerator() {
                     w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-200
                     ${copied
                       ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
-                      : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750 hover:border-gray-300 dark:hover:border-gray-600'
+                      : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                     }
                   `}
                 >
