@@ -37,11 +37,15 @@ jobs:
       - name: Build Project
         run: npm run build
 
+      - name: List files for debugging
+        run: ls -la
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-build
-          path: .next/
+          path: .next
+          if-no-files-found: error
           retention-days: 5
 
   deploy-preview:
