@@ -41,6 +41,12 @@ npm install
 # Запуск в режиме разработки
 npm run dev
 
+# Линтинг
+npm run lint
+
+# Запуск тестов
+npm run test
+
 # Сборка для продакшена
 npm run build
 ```
@@ -48,9 +54,17 @@ npm run build
 ## Переменные окружения
 
 ```env
-NEXT_PUBLIC_API_KEY=your_gemini_api_key
-NEXT_PUBLIC_GA_MEASUREMENT_ID=your_ga_id
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+# Google Gemini API (Обязательно)
+GOOGLE_API_KEY=your_google_gemini_api_key
+# или GEMINI_API_KEY=your_gemini_api_key
+
+# Supabase (Обязательно)
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Опционально
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 ## Структура папок

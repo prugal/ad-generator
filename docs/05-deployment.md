@@ -3,12 +3,12 @@
 ## Требования
 
 ### Node.js
-- Версия: 18.17+ (LTS)
-- Рекомендуется: 20.x LTS
+- **Версия**: 20.x LTS (рекомендуется)
+- **Минимальная**: 18.17+
 
 ### Package Manager
 - npm (входит в состав Node.js)
-- Рекомендуется: npm 10+
+- **Рекомендуется**: npm 10+
 
 ## Локальная разработка
 
@@ -49,10 +49,18 @@ npm run dev
 
 Сервер запустится на `http://localhost:3000`.
 
-### 4. Сборка для production
+### 4. Дополнительные команды
 
 ```bash
+# Линтинг кода (ESLint)
+npm run lint
+
+# Запуск тестов (Vitest)
+npm run test
+
+# Production сборка и запуск
 npm run build
+npm run start
 ```
 
 ---
@@ -117,7 +125,64 @@ Vercel автоматически соберет проект, настроит 
 
 ---
 
+## CI/CD Pipeline (GitHub Actions)
+
+Проект включает готовый workflow `.github/workflows/ci-cd.yml`:
+
+### Что включает CI/CD:
+
+| Этап | Описание |
+|------|----------|
+| **Install** | Установка зависимостей (`npm ci`) |
+| **Lint** | Проверка кода ESLint (`npm run lint`) |
+| **Test** | Запуск unit-тестов Vitest (`npm run test`) |
+| **Audit** | Security audit зависимостей (`npm audit`) |
+| **Build** | Production сборка (`npm run build`) |
+| **Artifact** | Сохранение сборки как артефакта |
+| **Deploy** | Деплой на production (при push в main) |
+
+### Workflow структура:
+
+- **Pull Request**: Запускает build, lint, test для проверки
+- **Push to main**: Полный цикл + деплой
+
+### Требования для CI/CD:
+
+1. **Node.js 20** (указано в workflow)
+2. **Secrets** (если нужен деплой на Vercel):
+   - `VERCEL_TOKEN` — для автоматического деплоя
+
+---
+
 ## Troubleshooting
+
+### Стили не применяются / Dark mode не работает
+
+**Причина**: Неверная конфигурация Tailwind v4 или повреждённый кэш
+
+**Решение**:
+```powershell
+# Очистить кэш и пересобрать (PowerShell)
+Remove-Item -Recurse -Force .next
+npm run dev
+```
+
+**Для Tailwind v4**:
+- Тема настраивается в `globals.css` через `@custom-variant dark`
+- Конфигурация PostCSS: `postcss.config.js` с `@tailwindcss/postcss`
+- Проверить что нет старых классов (например `gray-750` → `gray-800`)
+
+### Ошибка: "Unable to acquire lock" / "Failed to restore task data"
+
+**Причина**: Turbopack база данных повреждена или завис процесс
+
+**Решение**:
+```powershell
+# Остановить все Node процессы и очистить
+Get-Process -Name "node" | Stop-Process -Force
+Remove-Item -Recurse -Force .next
+npm run dev
+```
 
 ### Ошибка 504 Gateway Timeout (Vercel)
 Если генерация занимает более 10 секунд (лимит Vercel Hobby plan):

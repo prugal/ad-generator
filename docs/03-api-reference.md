@@ -133,11 +133,26 @@ export type Tone = 'aggressive' | 'polite' | 'brief' | 'restrained' | 'natural';
 
 Для работы приложения требуются следующие переменные окружения (в `.env.local` или настройках Vercel):
 
+### Обязательные
+
 ```env
-# Google Gemini API
+# Google Gemini API (серверная переменная, не публичная)
 GOOGLE_API_KEY=your_gemini_api_key
+# или альтернативно: GEMINI_API_KEY=your_gemini_api_key
 
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+### Опциональные
+
+```env
+# Google Analytics
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# Site URL для SEO и ссылок
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+```
+
+**Важно**: `GOOGLE_API_KEY` — серверная переменная (без префикса `NEXT_PUBLIC_`), она используется только в API Routes и не попадает в клиентский бандл.
