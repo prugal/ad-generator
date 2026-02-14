@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type, type GenerateContentParameters, type Part } from "@google/genai";
 import { getSystemInstruction, buildPrompt } from '../../../services/adHelpers';
 import { supabase } from '../../../services/supabase';
+import { checkRateLimit, validateReferer, logError, type SecurityContext } from '../../../services/serverSecurity';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -33,19 +34,35 @@ async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: Omit<
 }
 
 export async function POST(req: Request) {
+  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  const referer = req.headers.get('referer');
+  const context: SecurityContext = { ip, referer, path: '/api/generate' };
+
+  // 1. Referer Check
+  if (!validateReferer(referer)) {
+    await logError(context, 'SECURITY_VIOLATION', 'Invalid Referer', { referer });
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // 2. Rate Limit Check
+  const rateLimit = await checkRateLimit(ip);
+  if (!rateLimit.success) {
+    await logError(context, 'RATE_LIMIT_EXCEEDED', 'Rate limit exceeded', { limit: 10 });
+    return NextResponse.json({ error: rateLimit.message }, { status: rateLimit.status });
+  }
+
   try {
     const { category, tone, data } = await req.json();
     const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
-      return NextResponse.json(
-        { error: 'API key configuration missing' },
-        { status: 500 }
-      );
+        const err = new Error('API key configuration missing');
+        await logError(context, 'CONFIG_ERROR', err);
+        return NextResponse.json({ error: 'Configuration Error' }, { status: 500 });
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const modelId = 'gemini-flash-latest'; // Verified available model
+    const modelId = 'gemini-flash-latest';
     
     const promptText = buildPrompt(category, tone, data);
     
@@ -99,7 +116,6 @@ export async function POST(req: Request) {
 
       // Save to Supabase (non-blocking)
       const dataToSave = { ...data };
-      // Remove large image data before saving to DB
       if ((dataToSave as { image?: string }).image) {
           delete (dataToSave as { image?: string }).image;
       }
@@ -110,7 +126,10 @@ export async function POST(req: Request) {
         output_text: result.adText,
         tone
       }).then(({ error }) => {
-        if (error) console.error('Error saving to Supabase:', error);
+        if (error) {
+            console.error('Error saving to Supabase:', error);
+            logError(context, 'DB_INSERT_ERROR', error, { table: 'generated_ads' });
+        }
       });
 
       return NextResponse.json(result);
@@ -118,8 +137,11 @@ export async function POST(req: Request) {
       throw new Error("No text returned from Gemini");
     }
   } catch (error: unknown) {
-    console.error("Gemini API Error:", error);
-    const err = error as { status?: number; message?: string };
+    const err = error as { status?: number; message?: string; stack?: string };
+    
+    // Log the full error
+    await logError(context, 'API_ERROR', err, { message: err.message });
+
     if (err.message?.includes('429') || err.status === 429 || err.message?.includes('quota')) {
         return NextResponse.json(
             { error: "Превышен лимит запросов (Quota Exceeded). Пожалуйста, подождите минуту и попробуйте снова." },

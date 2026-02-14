@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type, type GenerateContentParameters } from "@google/genai";
 import { getDetailsString } from '../../../services/adHelpers';
+import { checkRateLimit, validateReferer, logError, type SecurityContext } from '../../../services/serverSecurity';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -32,15 +33,31 @@ async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: Omit<
 }
 
 export async function POST(req: Request) {
+  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  const referer = req.headers.get('referer');
+  const context: SecurityContext = { ip, referer, path: '/api/optimize' };
+
+  // 1. Referer Check
+  if (!validateReferer(referer)) {
+    await logError(context, 'SECURITY_VIOLATION', 'Invalid Referer', { referer });
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // 2. Rate Limit Check
+  const rateLimit = await checkRateLimit(ip);
+  if (!rateLimit.success) {
+    await logError(context, 'RATE_LIMIT_EXCEEDED', 'Rate limit exceeded', { limit: 10 });
+    return NextResponse.json({ error: rateLimit.message }, { status: rateLimit.status });
+  }
+
   try {
     const { currentText, category, data } = await req.json();
     const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
-      return NextResponse.json(
-        { error: 'API key configuration missing' },
-        { status: 500 }
-      );
+      const err = new Error('API key configuration missing');
+      await logError(context, 'CONFIG_ERROR', err);
+      return NextResponse.json({ error: 'Configuration Error' }, { status: 500 });
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -66,7 +83,7 @@ export async function POST(req: Request) {
     `;
 
     const response = await generateWithRetry(ai, modelId, {
-      contents: prompt,
+      contents: { role: 'user', parts: [{ text: prompt }] },
       config: {
         temperature: 0.7,
         responseMimeType: "application/json",
@@ -83,6 +100,7 @@ export async function POST(req: Request) {
               description: "The list of keywords used.",
             },
           },
+          required: ["rewrittenAd", "keywords"],
         },
       }
     });
@@ -97,8 +115,11 @@ export async function POST(req: Request) {
       throw new Error("No text returned from Gemini");
     }
   } catch (error: unknown) {
+    const err = error as { status?: number; message?: string; stack?: string };
     console.error("Gemini Optimization Error:", error);
-    const err = error as { status?: number; message?: string };
+    
+    await logError(context, 'API_ERROR', err, { message: err.message });
+
     if (err.message?.includes('429') || err.status === 429 || err.message?.includes('quota')) {
         return NextResponse.json(
             { error: "Превышен лимит запросов. Пожалуйста, подождите минуту." },
