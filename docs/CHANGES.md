@@ -18,7 +18,7 @@
 
 ### Fixed
 - Fixed Next.js Image configuration for Google user avatars by adding `lh3.googleusercontent.com` to remotePatterns
-- Fixed server-side build failure by providing Supabase credentials to the build environment
+- Fixed server-side build failure by providing Supabase credentials to the Vercel build environment
 
 ### Technical Details
 - Implemented OAuth flow with proper redirect handling and session management
