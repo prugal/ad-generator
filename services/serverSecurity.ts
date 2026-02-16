@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase Admin Client (for server-side operations only)
 // Requires SERVICE_ROLE_KEY to bypass RLS if needed, or just standard key if RLS allows
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error('Missing Supabase credentials for server security service');
