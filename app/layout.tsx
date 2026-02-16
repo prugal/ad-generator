@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import AuthInitializer from "../components/AuthInitializer";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
@@ -45,6 +46,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${inter.className} bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100`}>
+        <AuthInitializer />
         {children}
         
         {/* Analytics Script */}

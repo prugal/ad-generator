@@ -11,6 +11,7 @@ import { ToneSelector } from './ToneSelector';
 import { ImageUpload } from './ImageUpload';
 import { RulesModal } from './RulesModal';
 import { generateAd, optimizeAdWithKeywords } from '../services/geminiService';
+import AuthButton from './AuthButton';
 import { logEvent } from '../services/analytics';
 
 // Initial state helpers
@@ -634,6 +635,7 @@ export default function AdGenerator() {
             >
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
+            <AuthButton />
           </div>
 
           <div className="inline-flex items-center justify-center p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-4" suppressHydrationWarning>
