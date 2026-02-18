@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, Link as LinkIcon, Moon, Sun, AlertTriangle, Lightbulb, Info } from 'lucide-react';
+import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, Link as LinkIcon, Moon, Sun, AlertTriangle, Lightbulb, Info, Pencil } from 'lucide-react';
 import { CategoryId, AppState } from '../types';
 import { CategoryCard } from './CategoryCard';
 import { InputField } from './InputField';
@@ -122,6 +122,7 @@ export default function AdGenerator() {
   }, []);
 
   const [copied, setCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
@@ -258,6 +259,7 @@ export default function AdGenerator() {
 
     if (!validateForm()) return;
 
+    setIsEditing(false);
     setState(prev => ({ ...prev, isLoading: true, error: null, generatedText: '', smartTip: null, keywords: [] }));
 
     try {
@@ -737,6 +739,16 @@ export default function AdGenerator() {
                 </h3>
                 <div className="flex gap-2">
                   <button
+                    onClick={() => setIsEditing(!isEditing)}
+                    className={`p-2 rounded-lg transition-colors ${isEditing
+                      ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/30'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30'
+                      }`}
+                    title={isEditing ? "Закончить редактирование" : "Редактировать текст"}
+                  >
+                    {isEditing ? <CheckCircle2 className="w-5 h-5" /> : <Pencil className="w-5 h-5" />}
+                  </button>
+                  <button
                     onClick={handleGenerateClick}
                     disabled={balance < 0.5}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -747,10 +759,20 @@ export default function AdGenerator() {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
-                <article className="prose prose-sm sm:prose prose-indigo dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white">
-                  <ReactMarkdown>{state.generatedText}</ReactMarkdown>
-                </article>
+              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm transition-all duration-200">
+                {isEditing ? (
+                  <textarea
+                    value={state.generatedText}
+                    onChange={(e) => setState(prev => ({ ...prev, generatedText: e.target.value }))}
+                    className="w-full h-64 p-2 -m-2 bg-transparent text-gray-700 dark:text-gray-300 border border-transparent focus:border-primary-500/30 rounded-lg focus:ring-4 focus:ring-primary-500/10 resize-none font-sans text-base leading-relaxed transition-all outline-none"
+                    placeholder="Введите текст объявления..."
+                    autoFocus
+                  />
+                ) : (
+                  <article className="prose prose-sm sm:prose prose-indigo dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white">
+                    <ReactMarkdown>{state.generatedText}</ReactMarkdown>
+                  </article>
+                )}
               </div>
 
               {/* Smart Tip Block (Contextual Hints) */}
@@ -790,7 +812,7 @@ export default function AdGenerator() {
                 <div className="mt-4 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleOptimize}
-                    disabled={state.isOptimizing || balance < 1}
+                    disabled={state.isOptimizing || balance < 1 || isEditing}
                     className="flex-1 p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 rounded-xl flex items-center justify-center sm:justify-start gap-3 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
                     <div className="p-2 bg-indigo-100 dark:bg-indigo-800/50 rounded-lg text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
