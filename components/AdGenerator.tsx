@@ -95,6 +95,43 @@ export default function AdGenerator() {
     validationErrors: {},
   });
 
+  // Track previous user to detect account changes/logout
+  const prevUserId = useRef<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    // Initial load: set the current user ID
+    if (prevUserId.current === undefined) {
+      if (user !== undefined) {
+        prevUserId.current = user?.id || null;
+      }
+      return;
+    }
+
+    // If user changed (logout or account switch)
+    if (user?.id !== prevUserId.current) {
+      // Clear state only if we had a user before (logout or switch)
+      // This allows guest -> login transition without losing data
+      if (prevUserId.current !== null) {
+        setState(prev => ({
+          ...prev,
+          formData: {
+            electronics: { ...initialElectronics },
+            auto: { ...initialAuto },
+            services: { ...initialServices },
+            clothing: { ...initialClothing },
+          },
+          generatedText: '',
+          smartTip: null,
+          keywords: [],
+          error: null,
+          validationErrors: {},
+        }));
+        localStorage.removeItem(STORAGE_KEY);
+      }
+      prevUserId.current = user?.id || null;
+    }
+  }, [user?.id]);
+
   // Load state from local storage on mount
   useEffect(() => {
     try {
