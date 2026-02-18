@@ -16,10 +16,10 @@ export default function AuthButton({ variant = 'login', className = '' }: AuthBu
 
   const handleGoogleSignIn = async () => {
     if (isProcessing) return;
-    
+
     setIsProcessing(true);
     clearError();
-    
+
     try {
       await signInWithGoogle();
     } catch (error) {
@@ -31,12 +31,14 @@ export default function AuthButton({ variant = 'login', className = '' }: AuthBu
 
   const handleSignOut = async () => {
     if (isProcessing) return;
-    
+
     setIsProcessing(true);
     clearError();
-    
+
     try {
       await signOut();
+      // Clear app state on sign out to prevent data leakage between accounts
+      localStorage.removeItem('ai_ads_app_state_v1');
     } catch (error) {
       console.error('Sign out error:', error);
     } finally {
@@ -128,7 +130,7 @@ export default function AuthButton({ variant = 'login', className = '' }: AuthBu
         )}
         Войти через Google
       </button>
-      
+
       {error && (
         <div className="text-xs text-red-600 dark:text-red-400 text-center max-w-xs">
           {error}
