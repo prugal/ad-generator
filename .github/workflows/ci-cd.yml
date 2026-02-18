@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Continuous Integration
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
-    name: Build and Test
+  quality-assurance:
+    name: Lint & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -27,68 +27,14 @@ jobs:
       - name: Linting
         run: npm run lint
 
+      - name: Type Check
+        run: npx tsc --noEmit
+
       - name: Run Tests
         run: npm test run
 
-      - name: Security Audit
-        run: npm audit --audit-level=high
-        continue-on-error: true # Don't fail build on audit for now, but report it
-
       - name: Build Project
         run: npm run build
-
-      - name: List files for debugging
-        run: |
-          ls -la
-          ls -la .next || echo ".next directory not found"
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: nextjs-build
-          path: |
-            .next/**
-            !.next/cache/**
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 5
-
-  deploy-preview:
-    name: Deploy to Preview (Simulation)
-    needs: build-and-test
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Simulate Vercel Preview Deployment
-        run: |
-          echo "Deploying to preview environment..."
-          # Real command would be: npx vercel pull --yes --environment=preview && npx vercel build && npx vercel deploy --prebuilt
-          echo "Preview deployment successful!"
-
-  deploy-production:
-    name: Deploy to Production
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: 
-      name: production
-      url: https://your-production-url.com
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nextjs-build
-          path: .next/
-
-      - name: Simulate Production Deployment
-        run: |
-          echo "Deploying to production..."
-          # Real command would be: npx vercel --prod
-          echo "Production deployment successful!"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
