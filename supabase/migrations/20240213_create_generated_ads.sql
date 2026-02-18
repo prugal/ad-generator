@@ -7,3 +7,7 @@ create table public.generated_ads (
   created_at timestamp with time zone not null default now(),
   constraint generated_ads_pkey primary key (id)
 ) tablespace pg_default;
+
+-- Enable RLS (no policies = only service_role can access)
+ALTER TABLE public.generated_ads ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.generated_ads FROM anon, authenticated;

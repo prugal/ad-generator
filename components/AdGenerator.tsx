@@ -13,6 +13,9 @@ import { RulesModal } from './RulesModal';
 import { generateAd, optimizeAdWithKeywords } from '../services/geminiService';
 import AuthButton from './AuthButton';
 import { logEvent } from '../services/analytics';
+import { useCreditStore } from '@/services/creditStore';
+import { creditService } from '@/services/creditService';
+import { useAuthStore } from '@/services/authStore';
 
 // Initial state helpers
 const initialElectronics = { model: '', specs: '', condition: 'normal' as const, kit: '', image: '', price: '' };
@@ -32,6 +35,8 @@ const cleanTextResponse = (text: string): string => {
 };
 
 export default function AdGenerator() {
+  const { balance, setBalance } = useCreditStore();
+  const { user } = useAuthStore();
   // Theme state initialization
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isThemeLoaded, setIsThemeLoaded] = useState(false);
@@ -55,7 +60,7 @@ export default function AdGenerator() {
   // Apply theme to document
   useEffect(() => {
     if (!isThemeLoaded) return;
-    
+
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem(THEME_KEY, 'dark');
@@ -194,7 +199,7 @@ export default function AdGenerator() {
           };
           localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSaveClean));
         } catch {
-            // ignore
+          // ignore
         }
       }
     }, 500);
@@ -285,23 +290,35 @@ export default function AdGenerator() {
     return true;
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (isRegeneration = false) => {
     if (quotaUsage >= RPM_LIMIT) {
       setState(prev => ({ ...prev, error: `Лимит запросов исчерпан. Подождите ${timeUntilReset} сек.` }));
       return;
     }
 
+    const cost = isRegeneration ? 0.5 : 1;
+
+    if (balance < cost) {
+      setState(prev => ({ ...prev, error: `Недостаточно кредитов. Нужно ${cost} кредит(а).` }));
+      return;
+    }
+
     if (!validateForm()) return;
 
-    logEvent('generate_ad_click', { category: state.category, tone: state.tone });
+    logEvent('generate_ad_click', { category: state.category, tone: state.tone, is_regeneration: isRegeneration });
     setState(prev => ({ ...prev, isLoading: true, error: null, generatedText: '', smartTip: null, keywords: [] }));
     registerRequest();
 
     try {
       const currentData = state.formData[state.category];
       const { adText, smartTip } = await generateAd(state.category, state.tone, currentData);
+
+      // Списываем кредиты только после успешной генерации
+      await creditService.spendCredits(cost, isRegeneration ? 'Ad Regeneration' : 'Ad Generation');
+      setBalance(balance - cost);
+
       setState(prev => ({ ...prev, isLoading: false, generatedText: cleanTextResponse(adText), smartTip: cleanTextResponse(smartTip) }));
-      logEvent('generate_ad_success', { category: state.category });
+      logEvent('generate_ad_success', { category: state.category, cost });
     } catch (err) {
       logEvent('generate_ad_error', { category: state.category, error: err instanceof Error ? err.message : 'Unknown' });
       setState(prev => ({
@@ -316,18 +333,18 @@ export default function AdGenerator() {
     if (state.generatedText) {
       setShowConfirmModal(true);
     } else {
-      handleGenerate();
+      handleGenerate(false);
     }
   };
 
   const confirmGenerate = () => {
     setShowConfirmModal(false);
-    handleGenerate();
+    handleGenerate(true); // повторная генерация — 0.5 кредита
   };
 
   const handleOptimize = async () => {
-    if (quotaUsage >= RPM_LIMIT) {
-      setState(prev => ({ ...prev, error: `Лимит запросов исчерпан. Подождите ${timeUntilReset} сек.` }));
+    if (balance < 1) {
+      setState(prev => ({ ...prev, error: 'Недостаточно кредитов для SEO оптимизации.' }));
       return;
     }
 
@@ -335,7 +352,6 @@ export default function AdGenerator() {
 
     logEvent('optimize_ad_click', { category: state.category });
     setState(prev => ({ ...prev, isOptimizing: true, error: null }));
-    registerRequest();
 
     try {
       const currentData = state.formData[state.category];
@@ -344,6 +360,10 @@ export default function AdGenerator() {
         state.category,
         currentData
       );
+
+      // Списываем кредиты только после успешной оптимизации
+      await creditService.spendCredits(1, 'Ad Optimization');
+      setBalance(balance - 1);
 
       const cleanedAdText = cleanTextResponse(adText);
       const fullText = `${cleanedAdText.trim()}\n\n🔍 Теги для поиска: ${keywords.join(', ')}`;
@@ -617,36 +637,50 @@ export default function AdGenerator() {
       <div className="max-w-2xl mx-auto space-y-8">
 
         {/* Header */}
-        <div className="text-center space-y-2 relative">
-          <div className="absolute top-0 right-0 flex items-center gap-2">
-            <button
-              onClick={() => setShowRules(true)}
-              className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-              title="Правила и тарифы"
-              suppressHydrationWarning
-            >
-              <Info className="w-5 h-5" />
-            </button>
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-              title={isDarkMode ? "Светлая тема" : "Темная тема"}
-              suppressHydrationWarning
-            >
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-            <AuthButton />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            {/* Logo */}
+            <div className="inline-flex items-center justify-center p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm" suppressHydrationWarning>
+              <Sparkles className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => setShowRules(true)}
+                className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                title="Правила и тарифы"
+                suppressHydrationWarning
+              >
+                <Info className="w-5 h-5" />
+              </button>
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                title={isDarkMode ? "Светлая тема" : "Темная тема"}
+                suppressHydrationWarning
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <AuthButton />
+              {user && (
+                <div className="flex items-center space-x-2 text-sm font-medium text-gray-600 dark:text-gray-300">
+                  <Sparkles className="w-5 h-5 text-primary-500" />
+                  <span>{Number.isInteger(balance) ? balance : balance.toFixed(1)} кредитов</span>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="inline-flex items-center justify-center p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-4" suppressHydrationWarning>
-            <Sparkles className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+          {/* Title */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+              AI Генератор Объявлений
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
+              Создайте идеальное описание для Авито или Юлы за пару секунд.
+            </p>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-            AI Генератор Объявлений
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
-            Создайте идеальное описание для Авито или Юлы за пару секунд.
-          </p>
         </div>
 
         {/* Main Card */}
