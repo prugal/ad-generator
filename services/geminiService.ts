@@ -37,7 +37,8 @@ export const generateAd = async (
 export const optimizeAdWithKeywords = async (
   currentText: string,
   category: CategoryId,
-  data: FormData
+  data: FormData,
+  modelId?: string
 ): Promise<{ adText: string; keywords: string[] }> => {
   try {
     const response = await fetch('/api/optimize', {
@@ -45,7 +46,7 @@ export const optimizeAdWithKeywords = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ currentText, category, data }),
+      body: JSON.stringify({ currentText, category, data, modelId }),
     });
 
     if (!response.ok) {

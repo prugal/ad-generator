@@ -63,7 +63,7 @@ export async function POST(req: Request) {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const modelId = 'gemini-flash-latest';
+    const modelId = 'gemini-3-flash-preview';
 
     const promptText = buildPrompt(category, tone, data);
 

@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { currentText, category, data } = await req.json();
+    const { currentText, category, data, modelId } = await req.json();
     const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const modelId = 'gemini-flash-latest';
+    const selectedModelId = modelId || 'gemini-3-flash-preview';
 
     const details = getDetailsString(category, data);
 
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
       4. Return the result in JSON format.
     `;
 
-    const response = await generateWithRetry(ai, modelId, {
+    const response = await generateWithRetry(ai, selectedModelId, {
       contents: { role: 'user', parts: [{ text: prompt }] },
       config: {
         temperature: 0.7,
