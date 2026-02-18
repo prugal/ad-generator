@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, Link as LinkIcon, Moon, Sun, AlertTriangle, Lightbulb, Info, Pencil } from 'lucide-react';
+import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, Link as LinkIcon, Moon, Sun, AlertTriangle, Lightbulb, Info, Pencil, ChevronDown } from 'lucide-react';
 import { CategoryId, AppState } from '../types';
 import { CategoryCard } from './CategoryCard';
 import { InputField } from './InputField';
@@ -161,6 +161,7 @@ export default function AdGenerator() {
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [optimizeModel, setOptimizeModel] = useState<'gemini-3-flash-preview' | 'gemini-flash-latest' | 'gemini-3-pro-preview'>('gemini-3-flash-preview');
   const resultRef = useRef<HTMLDivElement>(null);
 
   // Persistence effect
@@ -348,7 +349,8 @@ export default function AdGenerator() {
       const { adText, keywords } = await optimizeAdWithKeywords(
         state.generatedText,
         state.category,
-        currentData
+        currentData,
+        optimizeModel
       );
 
       // Списываем кредиты только после успешной оптимизации
@@ -723,6 +725,24 @@ export default function AdGenerator() {
                   }}
                 />
               </div>
+              <div className="flex items-center gap-3 pt-2">
+                <label htmlFor="model-select" className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                  Модель для SEO:
+                </label>
+                <div className="relative flex-1">
+                  <select
+                    id="model-select"
+                    value={optimizeModel}
+                    onChange={(e) => setOptimizeModel(e.target.value as 'gemini-3-flash-preview' | 'gemini-flash-latest' | 'gemini-3-pro-preview')}
+                    className="w-full appearance-none px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all pr-10"
+                  >
+                    <option value="gemini-3-flash-preview">gemini-3-flash-preview</option>
+                    <option value="gemini-flash-latest">gemini-flash-latest</option>
+                    <option value="gemini-3-pro-preview">gemini-3-pro-preview</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
             </div>
 
 
@@ -846,11 +866,11 @@ export default function AdGenerator() {
 
               {/* Post-generation Actions Block (SEO) */}
               {!state.keywords.length && (
-                <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                <div className="mt-4">
                   <button
                     onClick={handleOptimize}
                     disabled={state.isOptimizing || balance < 1 || isEditing}
-                    className="flex-1 p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 rounded-xl flex items-center justify-center sm:justify-start gap-3 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+                    className="w-full p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 rounded-xl flex items-center justify-center sm:justify-start gap-3 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
                     <div className="p-2 bg-indigo-100 dark:bg-indigo-800/50 rounded-lg text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
                       {state.isOptimizing ? <RefreshCw className="w-5 h-5 animate-spin" /> : <TrendingUp className="w-5 h-5" />}
