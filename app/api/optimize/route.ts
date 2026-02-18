@@ -14,12 +14,12 @@ async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: Omit<
       } as GenerateContentParameters);
     } catch (error: unknown) {
       const err = error as { status?: number; message?: string };
-      const isRetryable = 
-        err.status === 503 || 
-        err.status === 429 || 
-        err.message?.includes('503') || 
+      const isRetryable =
+        err.status === 503 ||
+        err.status === 429 ||
+        err.message?.includes('503') ||
         err.message?.includes('overloaded');
-      
+
       if (isRetryable && i < retries - 1) {
         const waitTime = 1000 * Math.pow(2, i); // 1s, 2s, 4s
         console.log(`Gemini API Error ${err.status}. Retrying in ${waitTime}ms... (Attempt ${i + 1}/${retries})`);
@@ -35,11 +35,12 @@ async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: Omit<
 export async function POST(req: Request) {
   const ip = req.headers.get('x-forwarded-for') || 'unknown';
   const referer = req.headers.get('referer');
+  const host = req.headers.get('host');
   const context: SecurityContext = { ip, referer, path: '/api/optimize' };
 
   // 1. Referer Check
-  if (!validateReferer(referer)) {
-    await logError(context, 'SECURITY_VIOLATION', 'Invalid Referer', { referer });
+  if (!validateReferer(referer, host)) {
+    await logError(context, 'SECURITY_VIOLATION', 'Invalid Referer', { referer, host });
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -108,8 +109,8 @@ export async function POST(req: Request) {
     if (response.text) {
       const result = JSON.parse(response.text);
       return NextResponse.json({
-          adText: result.rewrittenAd,
-          keywords: result.keywords || []
+        adText: result.rewrittenAd,
+        keywords: result.keywords || []
       });
     } else {
       throw new Error("No text returned from Gemini");
@@ -117,24 +118,24 @@ export async function POST(req: Request) {
   } catch (error: unknown) {
     const err = error as { status?: number; message?: string; stack?: string };
     console.error("Gemini Optimization Error:", error);
-    
+
     await logError(context, 'API_ERROR', err, { message: err.message });
 
     if (err.message?.includes('429') || err.status === 429 || err.message?.includes('quota')) {
-        return NextResponse.json(
-            { error: "Превышен лимит запросов. Пожалуйста, подождите минуту." },
-            { status: 429 }
-        );
+      return NextResponse.json(
+        { error: "Превышен лимит запросов. Пожалуйста, подождите минуту." },
+        { status: 429 }
+      );
     }
     if (err.message?.includes('503') || err.status === 503) {
-        return NextResponse.json(
-            { error: "Сервис временно перегружен (503). Мы пытались повторить запрос, но безуспешно. Попробуйте через минуту." },
-            { status: 503 }
-        );
+      return NextResponse.json(
+        { error: "Сервис временно перегружен (503). Мы пытались повторить запрос, но безуспешно. Попробуйте через минуту." },
+        { status: 503 }
+      );
     }
     return NextResponse.json(
-        { error: `Не удалось оптимизировать объявление: ${err.message}` },
-        { status: 500 }
+      { error: `Не удалось оптимизировать объявление: ${err.message}` },
+      { status: 500 }
     );
   }
 }

@@ -37,19 +37,47 @@ const ALLOWED_DOMAINS = [
 /**
  * Validates the Referer header to prevent CSRF/unauthorized usage
  */
-export function validateReferer(referer: string | null): boolean {
-  if (!referer) return false; // Strict mode: referer required
-  
+export function validateReferer(referer: string | null, host?: string | null): boolean {
+  if (!referer) {
+    console.warn('Referer validation failed: No referer header provided');
+    return false;
+  }
+
   try {
     const refererUrl = new URL(referer);
-    return ALLOWED_DOMAINS.some(domain => {
-      const allowedUrl = new URL(domain);
-      return refererUrl.hostname === allowedUrl.hostname;
+
+    // 1. Check against explicitly allowed domains
+    const isAllowed = ALLOWED_DOMAINS.some(domain => {
+      try {
+        // Handle domains with or without protocol
+        const allowedUrl = new URL(domain.startsWith('http') ? domain : `https://${domain}`);
+        return refererUrl.hostname === allowedUrl.hostname;
+      } catch {
+        // If domain is not a valid URL (e.g. just a hostname), compare directly
+        return refererUrl.hostname === domain;
+      }
     });
+
+    if (isAllowed) return true;
+
+    // 2. Check against the current host (same-origin request)
+    if (host && (refererUrl.host === host || refererUrl.hostname === host)) {
+      return true;
+    }
+
+    // 3. Special case for Vercel preview deployments
+    if (refererUrl.hostname.endsWith('.vercel.app')) {
+      return true;
+    }
+
+    console.warn(`Referer validation failed. Referer: ${referer}, Host: ${host}`);
+    return false;
   } catch (e) {
+    console.error('Referer validation error:', e);
     return false;
   }
 }
+
 
 /**
  * Checks rate limit for a given IP
@@ -67,7 +95,7 @@ export async function checkRateLimit(ip: string, limit = 10, windowSeconds = 600
       console.error('Rate limit RPC error:', error);
       // Fail open if DB is down? Or fail closed? 
       // Let's fail open to not block users if monitoring is broken, but log it.
-      return { success: true }; 
+      return { success: true };
     }
 
     if (data === false) {
@@ -89,9 +117,9 @@ export async function checkRateLimit(ip: string, limit = 10, windowSeconds = 600
  * Logs errors to Supabase
  */
 export async function logError(
-  context: SecurityContext, 
-  errorType: string, 
-  error: any, 
+  context: SecurityContext,
+  errorType: string,
+  error: any,
   params?: any
 ) {
   try {
