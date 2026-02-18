@@ -25,8 +25,6 @@ const initialClothing = { type: '', size: '', condition: '', brand: '', image: '
 
 const STORAGE_KEY = 'ai_ads_app_state_v1';
 const THEME_KEY = 'ai_ads_theme';
-const QUOTA_KEY = 'ai_ads_quota_timestamps';
-const RPM_LIMIT = 15;
 
 // Helper to clean up double escaped newlines sometimes returned by AI in JSON
 const cleanTextResponse = (text: string): string => {
@@ -76,48 +74,7 @@ export default function AdGenerator() {
     logEvent('toggle_theme', { theme: newTheme ? 'dark' : 'light' });
   };
 
-  // Quota State
-  const [quotaUsage, setQuotaUsage] = useState(0);
-  const [timeUntilReset, setTimeUntilReset] = useState(0);
 
-  const updateQuotaTracker = () => {
-    try {
-      const stored = localStorage.getItem(QUOTA_KEY);
-      const timestamps: number[] = stored ? JSON.parse(stored) : [];
-      const now = Date.now();
-      const valid = timestamps.filter((t: number) => now - t < 60000);
-
-      setQuotaUsage(valid.length);
-
-      if (valid.length >= RPM_LIMIT) {
-        const oldest = Math.min(...valid);
-        const waitTime = Math.ceil((60000 - (now - oldest)) / 1000);
-        setTimeUntilReset(waitTime > 0 ? waitTime : 0);
-      } else {
-        setTimeUntilReset(0);
-      }
-
-      if (valid.length !== timestamps.length) {
-        localStorage.setItem(QUOTA_KEY, JSON.stringify(valid));
-      }
-    } catch (e) {
-      console.error('Quota tracking error', e);
-    }
-  };
-
-  const registerRequest = () => {
-    const stored = localStorage.getItem(QUOTA_KEY);
-    const timestamps: number[] = stored ? JSON.parse(stored) : [];
-    timestamps.push(Date.now());
-    localStorage.setItem(QUOTA_KEY, JSON.stringify(timestamps));
-    updateQuotaTracker();
-  };
-
-  useEffect(() => {
-    updateQuotaTracker();
-    const interval = setInterval(updateQuotaTracker, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Initialize state
   const [state, setState] = useState<AppState>({
@@ -291,10 +248,6 @@ export default function AdGenerator() {
   };
 
   const handleGenerate = async (isRegeneration = false) => {
-    if (quotaUsage >= RPM_LIMIT) {
-      setState(prev => ({ ...prev, error: `Лимит запросов исчерпан. Подождите ${timeUntilReset} сек.` }));
-      return;
-    }
 
     const cost = isRegeneration ? 0.5 : 1;
 
@@ -305,9 +258,7 @@ export default function AdGenerator() {
 
     if (!validateForm()) return;
 
-    logEvent('generate_ad_click', { category: state.category, tone: state.tone, is_regeneration: isRegeneration });
     setState(prev => ({ ...prev, isLoading: true, error: null, generatedText: '', smartTip: null, keywords: [] }));
-    registerRequest();
 
     try {
       const currentData = state.formData[state.category];
@@ -588,16 +539,7 @@ export default function AdGenerator() {
     }
   };
 
-  // Quota Visualization Helper
-  const getQuotaColor = () => {
-    if (quotaUsage >= RPM_LIMIT) return 'bg-red-500';
-    if (quotaUsage > RPM_LIMIT * 0.7) return 'bg-orange-500';
-    return 'bg-green-500';
-  };
 
-  const getQuotaPercentage = () => {
-    return Math.min(100, (quotaUsage / RPM_LIMIT) * 100);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
@@ -744,26 +686,7 @@ export default function AdGenerator() {
               </div>
             </div>
 
-            {/* Quota Counter UI */}
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-              <div className="flex justify-between items-center mb-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
-                <span>Лимит запросов (в минуту)</span>
-                {quotaUsage >= RPM_LIMIT ? (
-                  <span className="text-red-500 font-bold flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" />
-                    Сброс через {timeUntilReset} сек.
-                  </span>
-                ) : (
-                  <span>{quotaUsage} / {RPM_LIMIT}</span>
-                )}
-              </div>
-              <div className="h-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-500 ease-out ${getQuotaColor()}`}
-                  style={{ width: `${getQuotaPercentage()}%` }}
-                />
-              </div>
-            </div>
+
 
             {/* Error Message */}
             {state.error && (
@@ -775,11 +698,11 @@ export default function AdGenerator() {
             {/* Block 3: Action Button */}
             <button
               onClick={handleGenerateClick}
-              disabled={state.isLoading || quotaUsage >= RPM_LIMIT}
+              disabled={state.isLoading || balance < 1}
               className={`
                 w-full py-4 px-6 rounded-xl font-bold text-white text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all
                 flex items-center justify-center gap-2 relative overflow-hidden group
-                ${state.isLoading || quotaUsage >= RPM_LIMIT
+                ${state.isLoading || balance < 1
                   ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed opacity-80'
                   : 'bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 dark:from-primary-500 dark:to-indigo-500'
                 }
@@ -793,15 +716,10 @@ export default function AdGenerator() {
                   </svg>
                   Думаю...
                 </>
-              ) : quotaUsage >= RPM_LIMIT ? (
-                <>
-                  <RefreshCw className="w-5 h-5 animate-spin-slow" />
-                  Ожидание сброса лимита...
-                </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
-                  Сгенерировать с AI
+                  {balance < 1 ? 'Недостаточно кредитов' : 'Сгенерировать с AI'}
                 </>
               )}
             </button>
@@ -820,11 +738,11 @@ export default function AdGenerator() {
                 <div className="flex gap-2">
                   <button
                     onClick={handleGenerateClick}
-                    disabled={quotaUsage >= RPM_LIMIT}
+                    disabled={balance < 0.5}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Сгенерировать еще раз"
                   >
-                    <RefreshCw className="w-5 h-5" />
+                    <RefreshCw className={`w-5 h-5 ${state.isLoading ? 'animate-spin' : ''}`} />
                   </button>
                 </div>
               </div>
@@ -872,7 +790,7 @@ export default function AdGenerator() {
                 <div className="mt-4 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleOptimize}
-                    disabled={state.isOptimizing || quotaUsage >= RPM_LIMIT}
+                    disabled={state.isOptimizing || balance < 1}
                     className="flex-1 p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 rounded-xl flex items-center justify-center sm:justify-start gap-3 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
                     <div className="p-2 bg-indigo-100 dark:bg-indigo-800/50 rounded-lg text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
