@@ -4,9 +4,9 @@ import { supabase } from '@/services/supabase';
 
 // Pricing plans
 const PLANS: Record<string, { credits: number; price: number; name: string }> = {
-    start: { credits: 10, price: 99, name: 'Старт (10 кредитов)' },
-    pro: { credits: 30, price: 249, name: 'Профи (30 кредитов)' },
-    business: { credits: 75, price: 499, name: 'Бизнес (75 кредитов)' },
+    start: { credits: 15, price: 99, name: 'Старт (15 кредитов)' },
+    pro: { credits: 60, price: 390, name: 'Профи (60 кредитов)' },
+    business: { credits: 200, price: 990, name: 'Бизнес (200 кредитов)' },
 };
 
 export async function POST(request: Request) {

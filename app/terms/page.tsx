@@ -67,21 +67,21 @@ export default function TermsPage() {
                                     <tbody>
                                         <tr>
                                             <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">Старт</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">10</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">15</td>
                                             <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">99 ₽</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">9.90 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">6.60 ₽</td>
                                         </tr>
                                         <tr className="bg-gray-50/50 dark:bg-gray-800/30">
                                             <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">Профи</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">30</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">249 ₽</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">8.30 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">60</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">390 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">6.50 ₽</td>
                                         </tr>
                                         <tr>
                                             <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">Бизнес</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">75</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">499 ₽</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">6.65 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">200</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">990 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">4.95 ₽</td>
                                         </tr>
                                     </tbody>
                                 </table>
