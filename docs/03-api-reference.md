@@ -15,6 +15,61 @@
 **Content-Type**: `application/json`
 
 **Тело запроса (Request Body)**:
+```
+
+---
+
+#### `POST /api/payment/result`
+
+Эндпоинт для обработки Result URL от Robokassa.
+
+**URL**: `/api/payment/result`
+**Method**: `POST`
+
+**Описание**: Принимает оповещение от Robokassa об успешном платеже. Проверяет подпись и, в случае успеха, начисляет кредиты пользователю.
+
+---
+
+#### `POST /api/payment/success`
+
+Эндпоинт для обработки Success URL от Robokassa.
+
+**URL**: `/api/payment/success`
+**Method**: `POST`
+
+**Описание**: Перенаправляет пользователя на страницу с информацией об успешном платеже после проверки подписи.
+
+---
+
+#### `GET /api/credits`
+
+Получение баланса кредитов для текущего пользователя.
+
+**URL**: `/api/credits`
+**Method**: `GET`
+
+**Ответ (Response)**:
+```json
+{
+  "credits": 10
+}
+```
+
+---
+
+#### `POST /api/credits`
+
+Списание кредитов за использование сервиса.
+
+**URL**: `/api/credits`
+**Method**: `POST`
+**Content-Type**: `application/json`
+
+**Тело запроса (Request Body)**:
+```json
+{
+  "amount": 1
+}
 ```json
 {
   "category": "electronics",
@@ -96,6 +151,54 @@ export const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, proce
 
 ---
 
+#### `authService.ts`
+
+Сервис для аутентификации пользователей через Supabase Auth (Google OAuth).
+
+- `signInWithGoogle()`: Инициирует процесс входа через Google.
+- `signOut()`: Выход пользователя из системы.
+- `getCurrentUser()`: Получение текущего пользователя.
+- `getCurrentSession()`: Получение текущей сессии.
+
+#### `authStore.ts`
+
+Zustand store для управления состоянием аутентификации.
+
+- `user`: Текущий пользователь.
+- `session`: Текущая сессия.
+- `isLoading`: Флаг загрузки.
+- `error`: Ошибка аутентификации.
+
+#### `creditService.ts`
+
+Сервис для управления кредитами пользователя.
+
+- `getCredits()`: Получение баланса кредитов.
+- `spendCredits(amount, description)`: Списание кредитов.
+
+#### `creditStore.ts`
+
+Zustand store для хранения баланса кредитов.
+
+- `balance`: Текущий баланс кредитов.
+
+#### `robokassaService.ts`
+
+Сервис для интеграции с Robokassa.
+
+- `generatePaymentUrl(params)`: Генерация URL для оплаты.
+- `verifyResultSignature(...)`: Проверка подписи для Result URL.
+- `verifySuccessSignature(...)`: Проверка подписи для Success URL.
+
+#### `serverSecurity.ts`
+
+Сервис для обеспечения безопасности на стороне сервера.
+
+- `validateReferer(referer, host)`: Валидация Referer хедера.
+- `checkRateLimit(ip)`: Проверка лимита запросов для IP.
+
+---
+
 ## Типы данных (`types.ts`)
 
 ### Категории
@@ -143,6 +246,12 @@ GOOGLE_API_KEY=your_gemini_api_key
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Robokassa
+ROBOKASSA_MERCHANT_LOGIN=your_merchant_login
+ROBOKASSA_PASSWORD1=your_password1
+ROBOKASSA_PASSWORD2=your_password2
+ROBOKASSA_TEST_MODE=true
 ```
 
 ### Опциональные

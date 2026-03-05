@@ -11,7 +11,7 @@
 - **[03-api-reference.md](./03-api-reference.md)** — API документация, сервисы
 - **[04-components.md](./04-components.md)** — Референс компонентов React
 - **[05-deployment.md](./05-deployment.md)** — Руководство по деплою
-- **[06-ci-cd.md](./06-ci-cd.md)** — Руководство по CI/CD
+
 
 ## Ключевые возможности
 
@@ -23,12 +23,19 @@
 - 🌙 Тёмная/светлая тема
 - 📱 Адаптивный дизайн
 - 📊 Google Analytics интеграция
+- 💳 Прием платежей через Robokassa
+- 🔐 Аутентификация пользователей (Google)
+- 💰 Система кредитов для контроля использования
 
 ## Технологический стек
 
 - **Frontend**: Next.js 16.1.6 + React 19.2.4 + TypeScript 5.5.3
 - **Styling**: TailwindCSS v4 + PostCSS
+- **State Management**: Zustand
 - **AI API**: Google Gemini 3 Flash Preview
+- **Auth**: Supabase Auth
+- **Payments**: Robokassa
+- **Database**: Supabase (PostgreSQL)
 - **Icons**: Lucide React
 - **Markdown**: React Markdown
 
@@ -61,6 +68,12 @@ GOOGLE_API_KEY=your_google_gemini_api_key
 # Supabase (Обязательно)
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Robokassa (Обязательно)
+ROBOKASSA_MERCHANT_LOGIN=your_merchant_login
+ROBOKASSA_PASSWORD1=your_password1
+ROBOKASSA_PASSWORD2=your_password2
+ROBOKASSA_TEST_MODE=true
 
 # Опционально
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
