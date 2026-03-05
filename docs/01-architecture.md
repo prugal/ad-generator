@@ -15,7 +15,7 @@ AI Classifieds Ad Generator — это веб-приложение на Next.js 
 │  │  │  Pages   │  │Components│  │  Services  │    │    │
 │  │  │          │  │          │  │            │    │    │
 │  │  │ /        │  │AdGenerator│ │ gemini    │    │    │
-│  │  │ /app     │  │InputField│  │ analytics │    │    │
+│  │  │ /app     │  │InputField│  │           │    │    │
 │  │  │          │  │...       │  │           │    │    │
 │  │  └──────────┘  └──────────┘  └────────────┘    │    │
 │  └───────────────────────┬─────────────────────────┘    │
@@ -99,7 +99,6 @@ d:\Work\Projects\ai-classifieds-ad-generator/
 │   ├── serverSecurity.ts         # Безопасность на сервере (rate limit, etc)
 │   ├── adHelpers.ts              # Общая логика промптов
 │   ├── supabase.ts               # Клиент Supabase
-│   └── analytics.ts              # Google Analytics
 │
 ├── supabase/                     # Supabase конфигурация
 │   └── migrations/               # SQL миграции

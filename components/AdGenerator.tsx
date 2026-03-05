@@ -12,7 +12,6 @@ import { ImageUpload } from './ImageUpload';
 import { RulesModal } from './RulesModal';
 import { generateAd, optimizeAdWithKeywords } from '../services/geminiService';
 import AuthButton from './AuthButton';
-import { logEvent } from '../services/analytics';
 import { useCreditStore } from '@/services/creditStore';
 import { creditService } from '@/services/creditService';
 import { useAuthStore } from '@/services/authStore';
@@ -71,7 +70,6 @@ export default function AdGenerator() {
   const toggleTheme = () => {
     const newTheme = !isDarkMode;
     setIsDarkMode(newTheme);
-    logEvent('toggle_theme', { theme: newTheme ? 'dark' : 'light' });
   };
 
 
@@ -210,7 +208,6 @@ export default function AdGenerator() {
   }, [state.generatedText, state.isLoading]);
 
   const handleCategoryChange = (id: CategoryId) => {
-    logEvent('change_category', { category: id });
     setState(prev => ({
       ...prev,
       category: id,
@@ -309,9 +306,7 @@ export default function AdGenerator() {
       setBalance(balance - cost);
 
       setState(prev => ({ ...prev, isLoading: false, generatedText: cleanTextResponse(adText), smartTip: cleanTextResponse(smartTip) }));
-      logEvent('generate_ad_success', { category: state.category, cost });
     } catch (err) {
-      logEvent('generate_ad_error', { category: state.category, error: err instanceof Error ? err.message : 'Unknown' });
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -341,7 +336,6 @@ export default function AdGenerator() {
 
     if (!state.generatedText) return;
 
-    logEvent('optimize_ad_click', { category: state.category });
     setState(prev => ({ ...prev, isOptimizing: true, error: null }));
 
     try {
@@ -366,9 +360,7 @@ export default function AdGenerator() {
         generatedText: fullText,
         keywords: keywords
       }));
-      logEvent('optimize_ad_success', { category: state.category, keyword_count: keywords.length });
     } catch (err) {
-      logEvent('optimize_ad_error', { category: state.category, error: err instanceof Error ? err.message : 'Unknown' });
       setState(prev => ({
         ...prev,
         isOptimizing: false,
@@ -379,7 +371,6 @@ export default function AdGenerator() {
 
   const handleCopy = () => {
     if (state.generatedText) {
-      logEvent('copy_ad_click', { category: state.category });
       navigator.clipboard.writeText(state.generatedText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -387,7 +378,6 @@ export default function AdGenerator() {
   };
 
   const handleShare = async () => {
-    logEvent('share_ad_click', { method: typeof navigator?.share === 'function' ? 'native' : 'modal', category: state.category });
     if (typeof navigator?.share === 'function') {
       try {
         await navigator.share({
@@ -720,7 +710,6 @@ export default function AdGenerator() {
                 <ToneSelector
                   selectedTone={state.tone}
                   onChange={(t) => {
-                    logEvent('change_tone', { tone: t });
                     setState(s => ({ ...s, tone: t }));
                   }}
                 />

@@ -147,12 +147,6 @@ export const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, proce
 
 #### `analytics.ts`
 
-Сервис для отслеживания событий в Google Analytics 4.
-
----
-
-#### `authService.ts`
-
 Сервис для аутентификации пользователей через Supabase Auth (Google OAuth).
 
 - `signInWithGoogle()`: Инициирует процесс входа через Google.
@@ -257,9 +251,6 @@ ROBOKASSA_TEST_MODE=true
 ### Опциональные
 
 ```env
-# Google Analytics
-NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
-
 # Site URL для SEO и ссылок
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```

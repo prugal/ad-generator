@@ -275,7 +275,6 @@ interface RulesModalProps {
 
 **Содержит**:
 - SEO метаданные (title, description, keywords, OG, Twitter)
-- Google Analytics Script (conditional)
 - Header с навигацией
 - Footer
 - Theme provider (class-based)
