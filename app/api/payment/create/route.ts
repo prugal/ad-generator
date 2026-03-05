@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         const paymentUrl = generatePaymentUrl({
             outSum: plan.price,
             invId,
-            description: `AdGenius.AI — ${plan.name}`,
+            description: `ProfitText.AI — ${plan.name}`,
             email,
             userId,
             credits: plan.credits,

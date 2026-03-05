@@ -4,7 +4,7 @@ import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
 
 export const metadata: Metadata = {
-    title: 'Ошибка оплаты — AdGenius.AI',
+    title: 'Ошибка оплаты — ProfitText.AI',
     description: 'Произошла ошибка при обработке платежа. Попробуйте снова или свяжитесь с поддержкой.',
     robots: { index: false, follow: false },
 };

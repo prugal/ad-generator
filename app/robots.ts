@@ -14,7 +14,7 @@ export default function robots(): MetadataRoute.Robots {
                 disallow: ['/api/', '/auth/', '/payment/'],
             },
         ],
-        sitemap: 'https://adgenius.ai/sitemap.xml',
-        host: 'https://adgenius.ai',
+        sitemap: 'https://profit-text.ru/sitemap.xml',
+        host: 'https://profit-text.ru',
     };
 }

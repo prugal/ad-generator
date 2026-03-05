@@ -4,8 +4,8 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 export const metadata: Metadata = {
-    title: 'Возврат средств — AdGenius.AI',
-    description: 'Политика возврата средств сервиса AdGenius.AI. Условия, сроки и порядок возврата за неиспользованные кредиты.',
+    title: 'Возврат средств — ProfitText.AI',
+    description: 'Политика возврата средств сервиса ProfitText.AI. Условия, сроки и порядок возврата за неиспользованные кредиты.',
     robots: { index: true, follow: true },
 };
 
@@ -36,7 +36,7 @@ export default function RefundPage() {
                                 <li>Возврат возможен в течение <strong>14 дней</strong> с момента оплаты</li>
                                 <li>Возвращаются только <strong>неиспользованные</strong> кредиты</li>
                                 <li>Срок обработки — до <strong>10 рабочих дней</strong></li>
-                                <li>Обращение через <strong>support@adgenius.ai</strong></li>
+                                <li>Обращение через <strong>support@profit-text.ru</strong></li>
                             </ul>
                         </div>
 
@@ -44,7 +44,7 @@ export default function RefundPage() {
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-3">1. Общие условия возврата</h2>
                             <p>
                                 1.1. Настоящая Политика возврата регулирует порядок и условия возврата денежных средств, уплаченных
-                                за приобретение кредитов в сервисе AdGenius.AI.
+                                за приобретение кредитов в сервисе ProfitText.AI.
                             </p>
                             <p>
                                 1.2. Политика разработана в соответствии с Законом РФ «О защите прав потребителей» от 07.02.1992 № 2300-1
@@ -81,7 +81,7 @@ export default function RefundPage() {
                             <ol className="list-decimal pl-6 space-y-3 mt-4">
                                 <li>
                                     <strong>Направьте заявление</strong> на электронную почту{' '}
-                                    <a href="mailto:support@adgenius.ai" className="text-blue-600 hover:underline">support@adgenius.ai</a>{' '}
+                                    <a href="mailto:support@profit-text.ru" className="text-blue-600 hover:underline">support@profit-text.ru</a>{' '}
                                     с темой «Возврат средств».
                                 </li>
                                 <li>
@@ -143,7 +143,7 @@ export default function RefundPage() {
                             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Контакты для возврата</h2>
                             <p className="text-sm">
                                 <strong>Email:</strong>{' '}
-                                <a href="mailto:support@adgenius.ai" className="text-blue-600 hover:underline">support@adgenius.ai</a>
+                                <a href="mailto:support@profit-text.ru" className="text-blue-600 hover:underline">support@profit-text.ru</a>
                             </p>
                             <p className="text-sm"><strong>Телефон:</strong> +7 (999) 123-45-67</p>
                             <p className="text-sm"><strong>Время работы поддержки:</strong> Пн-Пт, 10:00–19:00 (МСК)</p>

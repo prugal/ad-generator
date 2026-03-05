@@ -4,7 +4,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 export const metadata: Metadata = {
-    title: 'Публичная оферта — AdGenius.AI',
+    title: 'Публичная оферта — ProfitText.AI',
     description: 'Публичная оферта о заключении договора купли-продажи.',
     robots: { index: true, follow: true },
 };

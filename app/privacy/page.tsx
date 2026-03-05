@@ -4,8 +4,8 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 export const metadata: Metadata = {
-    title: 'Политика конфиденциальности — AdGenius.AI',
-    description: 'Политика конфиденциальности сервиса AdGenius.AI. Как мы собираем, используем и защищаем ваши персональные данные.',
+    title: 'Политика конфиденциальности — ProfitText.AI',
+    description: 'Политика конфиденциальности сервиса ProfitText.AI. Как мы собираем, используем и защищаем ваши персональные данные.',
     robots: { index: true, follow: true },
 };
 
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-3">1. Введение</h2>
                             <p>
                                 Настоящая Политика конфиденциальности описывает порядок сбора, использования, хранения и защиты
-                                персональных данных пользователей сервиса AdGenius.AI (далее — «Сервис»), принадлежащего
+                                персональных данных пользователей сервиса ProfitText.AI (далее — «Сервис»), принадлежащего
                                 ИП Иванов Иван Иванович (ИНН: 123456789012, ОГРНИП: 312345678901234).
                             </p>
                             <p>
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
                                 <li>Отозвать согласие на обработку данных.</li>
                             </ul>
                             <p className="mt-2">
-                                Для реализации этих прав направьте запрос на <strong>support@adgenius.ai</strong>.
+                                Для реализации этих прав направьте запрос на <strong>support@profit-text.ru</strong>.
                             </p>
                         </section>
 
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
                                 По вопросам, связанным с обработкой персональных данных, обращайтесь:
                             </p>
                             <ul className="list-none space-y-1">
-                                <li><strong>Email:</strong> support@adgenius.ai</li>
+                                <li><strong>Email:</strong> support@profit-text.ru</li>
                                 <li><strong>Телефон:</strong> +7 (999) 123-45-67</li>
                                 <li><strong>Адрес:</strong> г. Москва, ул. Примерная, д. 1</li>
                             </ul>

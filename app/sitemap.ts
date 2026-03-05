@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://adgenius.ai';
+    const baseUrl = 'https://profit-text.ru';
 
     return [
         {

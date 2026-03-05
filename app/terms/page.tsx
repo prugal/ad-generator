@@ -4,8 +4,8 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 export const metadata: Metadata = {
-    title: 'Условия использования — AdGenius.AI',
-    description: 'Условия предоставления услуг сервиса AdGenius.AI. Описание процесса оказания услуг, обязательства сторон и правила использования.',
+    title: 'Условия использования — ProfitText.AI',
+    description: 'Условия предоставления услуг сервиса ProfitText.AI. Описание процесса оказания услуг, обязательства сторон и правила использования.',
     robots: { index: true, follow: true },
 };
 
@@ -26,7 +26,7 @@ export default function TermsPage() {
                         <section>
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-3">1. Описание сервиса</h2>
                             <p>
-                                AdGenius.AI — это онлайн-сервис для автоматической генерации текстовых описаний товаров и услуг
+                                ProfitText.AI — это онлайн-сервис для автоматической генерации текстовых описаний товаров и услуг
                                 с использованием технологий искусственного интеллекта. Сервис предназначен для создания продающих
                                 объявлений для площадок Авито, Юла, OLX и других досок объявлений.
                             </p>
