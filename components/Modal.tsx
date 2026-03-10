@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -66,19 +65,18 @@ export default function Modal({
           ${className}
         `}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          {title && <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>}
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-white transition-colors"
-            aria-label="Закрыть модальное окно"
-          >
-            <X size={20} />
-          </button>
-        </div>
+        {title && <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>}
         <div className="p-6 flex-grow">
           {children}
         </div>
+        {/* <div className="flex justify-end p-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 transition-colors"
+          >
+            Закрыть
+          </button>
+        </div> */}
       </div>
     </div>
   );
