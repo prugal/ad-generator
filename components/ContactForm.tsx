@@ -43,10 +43,24 @@ export default function ContactForm() {
         e.preventDefault();
         setStatus('sending');
 
-        // In production, this would send to an API endpoint
         try {
-            // Simulate sending
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Ошибка отправки');
+            }
+
+            // Если API вернул mailtoLink (RESEND_API_KEY не настроен), открываем почтовый клиент
+            if (data.mailtoLink) {
+                window.location.href = data.mailtoLink;
+            }
+
             setStatus('sent');
             setFormData({ name: '', email: '', subject: '', message: '' });
             setTimeout(() => setStatus('idle'), 5000);
