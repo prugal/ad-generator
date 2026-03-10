@@ -1,6 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+
+const subjectOptions = [
+    { value: '', label: 'Выберите тему', icon: '📋' },
+    { value: 'general', label: 'Общий вопрос', icon: '💬' },
+    { value: 'payment', label: 'Оплата и тарифы', icon: '💳' },
+    { value: 'technical', label: 'Техническая поддержка', icon: '🔧' },
+    { value: 'refund', label: 'Возврат средств', icon: '💰' },
+    { value: 'partnership', label: 'Сотрудничество', icon: '🤝' },
+];
 
 export default function ContactForm() {
     const [formData, setFormData] = useState({
@@ -10,15 +19,48 @@ export default function ContactForm() {
         message: '',
     });
     const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+    const [isSelectOpen, setIsSelectOpen] = useState(false);
+    const selectRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+                setIsSelectOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleSelectOption = (value: string) => {
+        setFormData({ ...formData, subject: value });
+        setIsSelectOpen(false);
+    };
+
+    const selectedOption = subjectOptions.find(opt => opt.value === formData.subject) || subjectOptions[0];
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStatus('sending');
 
-        // In production, this would send to an API endpoint
         try {
-            // Simulate sending
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Ошибка отправки');
+            }
+
+            // Если API вернул mailtoLink (RESEND_API_KEY не настроен), открываем почтовый клиент
+            if (data.mailtoLink) {
+                window.location.href = data.mailtoLink;
+            }
+
             setStatus('sent');
             setFormData({ name: '', email: '', subject: '', message: '' });
             setTimeout(() => setStatus('idle'), 5000);
@@ -65,19 +107,69 @@ export default function ContactForm() {
                 <label htmlFor="contact-subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Тема обращения
                 </label>
-                <select
-                    id="contact-subject"
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all duration-200 outline-none"
-                >
-                    <option value="">Выберите тему</option>
-                    <option value="general">Общий вопрос</option>
-                    <option value="payment">Оплата и тарифы</option>
-                    <option value="technical">Техническая поддержка</option>
-                    <option value="refund">Возврат средств</option>
-                    <option value="partnership">Сотрудничество</option>
-                </select>
+                <div ref={selectRef} className="relative">
+                    <button
+                        type="button"
+                        id="contact-subject"
+                        onClick={() => setIsSelectOpen(!isSelectOpen)}
+                        className={`w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all duration-200 outline-none flex items-center justify-between cursor-pointer ${
+                            isSelectOpen ? 'ring-2 ring-blue-500/40 border-blue-500' : ''
+                        }`}
+                        aria-haspopup="listbox"
+                        aria-expanded={isSelectOpen}
+                    >
+                        <span className="flex items-center gap-2.5">
+                            <span className="text-lg">{selectedOption.icon}</span>
+                            <span>{selectedOption.label}</span>
+                        </span>
+                        <svg
+                            className={`w-5 h-5 text-gray-400 transition-transform duration-300 ease-out ${
+                                isSelectOpen ? 'rotate-180' : 'rotate-0'
+                            }`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    {/* Выпадающий список */}
+                    <div
+                        className={`absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl overflow-hidden transition-all duration-300 ease-out origin-top ${
+                            isSelectOpen
+                                ? 'opacity-100 scale-100 translate-y-0'
+                                : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+                        }`}
+                        role="listbox"
+                    >
+                        <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                            {subjectOptions.map((option, index) => (
+                                <button
+                                    key={option.value}
+                                    type="button"
+                                    onClick={() => handleSelectOption(option.value)}
+                                    className={`w-full px-4 py-3 flex items-center gap-2.5 hover:bg-blue-50 dark:hover:bg-gray-700/50 transition-colors duration-150 ${
+                                        formData.subject === option.value
+                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                            : 'text-gray-900 dark:text-white'
+                                    } ${index === 0 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`}
+                                    role="option"
+                                    aria-selected={formData.subject === option.value}
+                                >
+                                    <span className="text-lg">{option.icon}</span>
+                                    <span className="flex-1 text-left">{option.label}</span>
+                                    {formData.subject === option.value && (
+                                        <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div>
@@ -126,7 +218,7 @@ export default function ContactForm() {
                     <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                     </svg>
-                    Произошла ошибка. Попробуйте ещё раз или напишите нам на support@profit-text.ru
+                    Произошла ошибка. Попробуйте ещё раз или напишите нам на rugal.pavel@yandex.ru
                 </div>
             )}
         </form>
