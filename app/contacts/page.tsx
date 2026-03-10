@@ -123,7 +123,7 @@ export default function ContactsPage() {
                                             </svg>
                                             <div>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">ИНН</p>
-                                                <p className="text-sm text-gray-900 dark:text-white font-mono">420525000910</p>
+                                                <p className="text-sm text-gray-900 dark:text-white font-mono">420537607410</p>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">

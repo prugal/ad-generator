@@ -118,7 +118,7 @@ export default function TermsPage() {
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-3">11. Реквизиты Продавца</h2>
                             <ul className="list-none space-y-2">
                                 <li><strong>Полное наименование:</strong> Ругаль Павел Николаевич</li>
-                                <li><strong>ИНН:</strong> 420525000910</li>
+                                <li><strong>ИНН:</strong> 420537607410</li>
                                 <li><strong>ОГРН/ОГРНИП:</strong> 324420500058634</li>
                                 <li><strong>Контактный телефон:</strong> +7 905 915-55-59</li>
                                 <li><strong>Контактный e-mail:</strong> rugal.pavel@yandex.ru</li>
