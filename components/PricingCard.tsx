@@ -26,7 +26,7 @@ export default function PricingCard({
 }: PricingCardProps) {
     return (
         <div
-            className={`relative rounded-2xl p-[1px] transition-all duration-500 hover:-translate-y-2 ${recommended
+            className={`relative h-full rounded-2xl p-[1px] transition-all duration-500 hover:-translate-y-2 ${recommended
                     ? 'bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-600 shadow-2xl shadow-blue-500/20'
                     : 'bg-gray-200 dark:bg-gray-700'
                 }`}
@@ -37,7 +37,7 @@ export default function PricingCard({
                 </div>
             )}
 
-            <div className={`h-full rounded-2xl p-6 sm:p-8 ${recommended
+            <div className={`flex h-full flex-col rounded-2xl p-6 sm:p-8 ${recommended
                     ? 'bg-gray-900'
                     : 'bg-white dark:bg-gray-800'
                 }`}>
@@ -65,7 +65,7 @@ export default function PricingCard({
                     )}
                 </div>
 
-                <ul className="space-y-3 mb-8">
+                <ul className="mb-8 space-y-3 flex-1">
                     {features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-3">
                             <svg className={`w-5 h-5 mt-0.5 flex-shrink-0 ${recommended ? 'text-blue-400' : 'text-green-500'
