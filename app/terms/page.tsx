@@ -102,7 +102,7 @@ export default function TermsPage() {
                             </p>
                             <p>4.2. Доступные способы оплаты:</p>
                             <ul className="list-disc pl-6 space-y-1">
-                                <li>Банковские карты: Visa, Mastercard, МИР</li>
+                                <li>Банковские карты: МИР</li>
                                 <li>Система быстрых платежей (СБП)</li>
                                 <li>Электронные кошельки (ЮMoney, QIWI)</li>
                                 <li>Мобильные платежи</li>

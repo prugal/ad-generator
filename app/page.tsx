@@ -66,7 +66,7 @@ const faqData = [
   {
     question: 'Как оплатить кредиты?',
     answer:
-      'Оплата производится через безопасную платёжную систему Robokassa. Принимаются карты Visa, Mastercard, МИР, СБП и другие способы оплаты.',
+      'Оплата производится через безопасную платёжную систему Robokassa. Принимаются карты МИР, СБП и другие способы оплаты.',
   },
   {
     question: 'Можно ли вернуть деньги?',
@@ -285,7 +285,7 @@ export default function HomePage() {
                 {
                   icon: '🔒',
                   title: 'Безопасные платежи',
-                  desc: 'Оплата через Robokassa — поддержка Visa, Mastercard, МИР, СБП и других методов.',
+                  desc: 'Оплата через Robokassa — поддержка МИР, СБП и других методов.',
                 },
               ].map((item, i) => (
                 <div
@@ -363,7 +363,7 @@ export default function HomePage() {
             </div>
 
             <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10">
-              Безопасная оплата через Robokassa. Принимаем Visa, Mastercard, МИР, СБП.
+              Безопасная оплата через Robokassa. Принимаем МИР, СБП.
               <br />
               <Link href="/refund" className="text-blue-600 hover:underline">Условия возврата</Link>
               {' · '}

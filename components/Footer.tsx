@@ -109,8 +109,6 @@ export default function Footer() {
                         <div className="flex items-center gap-3">
                             <span className="text-xs text-gray-500">Способы оплаты:</span>
                             <div className="flex items-center gap-2">
-                                <div className="px-2.5 py-1 bg-gray-800 rounded-md text-xs text-gray-400 font-medium">Visa</div>
-                                <div className="px-2.5 py-1 bg-gray-800 rounded-md text-xs text-gray-400 font-medium">MC</div>
                                 <div className="px-2.5 py-1 bg-gray-800 rounded-md text-xs text-gray-400 font-medium">МИР</div>
                                 <div className="px-2.5 py-1 bg-gray-800 rounded-md text-xs text-gray-400 font-medium">СБП</div>
                             </div>
