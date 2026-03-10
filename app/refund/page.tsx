@@ -36,7 +36,7 @@ export default function RefundPage() {
                                 <li>Возврат возможен в течение <strong>14 дней</strong> с момента оплаты</li>
                                 <li>Возвращаются только <strong>неиспользованные</strong> кредиты</li>
                                 <li>Срок обработки — до <strong>10 рабочих дней</strong></li>
-                                <li>Обращение через <strong>support@profit-text.ru</strong></li>
+                                <li>Обращение через <strong>rugal.pavel@yandex.ru</strong></li>
                             </ul>
                         </div>
 
@@ -81,7 +81,7 @@ export default function RefundPage() {
                             <ol className="list-decimal pl-6 space-y-3 mt-4">
                                 <li>
                                     <strong>Направьте заявление</strong> на электронную почту{' '}
-                                    <a href="mailto:support@profit-text.ru" className="text-blue-600 hover:underline">support@profit-text.ru</a>{' '}
+                                    <a href="mailto:rugal.pavel@yandex.ru" className="text-blue-600 hover:underline">rugal.pavel@yandex.ru</a>{' '}
                                     с темой «Возврат средств».
                                 </li>
                                 <li>
@@ -143,9 +143,9 @@ export default function RefundPage() {
                             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Контакты для возврата</h2>
                             <p className="text-sm">
                                 <strong>Email:</strong>{' '}
-                                <a href="mailto:support@profit-text.ru" className="text-blue-600 hover:underline">support@profit-text.ru</a>
+                                <a href="mailto:rugal.pavel@yandex.ru" className="text-blue-600 hover:underline">rugal.pavel@yandex.ru</a>
                             </p>
-                            <p className="text-sm"><strong>Телефон:</strong> +7 (999) 123-45-67</p>
+                            <p className="text-sm"><strong>Телефон:</strong> +7 905 915-55-59</p>
                             <p className="text-sm"><strong>Время работы поддержки:</strong> Пн-Пт, 10:00–19:00 (МСК)</p>
                         </section>
                     </div>
