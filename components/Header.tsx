@@ -5,10 +5,15 @@ import Link from 'next/link';
 import { useAuthStore } from '../services/authStore';
 import AuthButton from './AuthButton';
 import ThemeToggle from './ThemeToggle';
+import Modal from './Modal';
+import LoginModalContent from './LoginModalContent';
+import Image from 'next/image';
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const { user, signOut } = useAuthStore();
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -61,7 +66,22 @@ export default function Header() {
                     {/* CTA + Auth */}
                     <div className="hidden lg:flex items-center gap-3">
                         <ThemeToggle />
-                        <AuthButton />
+                        {user ? (
+                            <div className="flex items-center gap-3">
+                                {user.user_metadata?.avatar_url && (
+                                    <Image
+                                        src={user.user_metadata.avatar_url}
+                                        alt={user.user_metadata?.full_name || user.email || 'User'}
+                                        width={32}
+                                        height={32}
+                                        className="w-8 h-8 rounded-full"
+                                    />
+                                )}
+                                <button onClick={() => signOut()} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200">Выйти</button>
+                            </div>
+                        ) : (
+                            <button onClick={() => setIsLoginModalOpen(true)} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200">Войти</button>
+                        )}
                         <Link
                             href="/generator"
                             id="header-cta"
@@ -121,6 +141,12 @@ export default function Header() {
                     </div>
                 </div>
             </div>
+
+            {/* Login Modal */}
+            <Modal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}>
+                <LoginModalContent onClose={() => setIsLoginModalOpen(false)} />
+            </Modal>
+
         </header>
     );
 }
