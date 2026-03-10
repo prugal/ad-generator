@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "AI Генератор Объявлений | Создать описание для Авито и Юлы",
-  description: "Бесплатный генератор продающих описаний для объявлений с помощью искусственного интеллекта. Загрузите фото, укажите характеристики и получите готовый текст для Avito, Youla или OLX за 2 секунды.",
+  description: "Бесплатный генератор продающих описаний для объявлений с помощью искусственного интеллекта. Загрузите фото, укажите характеристики и получите готовый текст для Avito, Youla за 2 секунды.",
   keywords: ["генератор объявлений", "описание для авито", "AI копирайтинг", "нейросеть для продаж", "ChatGPT для авито", "продающий текст", "шаблон объявления"],
   openGraph: {
     title: "AI Генератор Объявлений",
@@ -41,31 +41,32 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
+      <head>
+        <Script
+          id="theme-initializer"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const THEME_KEY = 'profit-text-theme';
+                try {
+                  const savedTheme = localStorage.getItem(THEME_KEY);
+                  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className={`${inter.className} bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100`}>
         <AuthInitializer />
         {children}
-        
-        {/* Analytics Script */}
-        {gaId && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${gaId}');
-              `}
-            </Script>
-          </>
-        )}
       </body>
     </html>
   );

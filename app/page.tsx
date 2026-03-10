@@ -7,9 +7,9 @@ import PricingCard from '../components/PricingCard';
 import { OrganizationSchema, WebSiteSchema, FAQSchema, ServiceSchema } from '../components/SchemaOrg';
 
 export const metadata: Metadata = {
-  title: 'AI Генератор Объявлений для Авито и Юла | Нейросеть для продающих описаний — AdGenius.AI',
+  title: 'AI Генератор Объявлений для Авито и Юла | Нейросеть для продающих описаний — ProfitText.AI',
   description:
-    'Бесплатный генератор продающих описаний для объявлений с помощью ИИ. Загрузите фото, укажите характеристики — получите готовый текст для Авито, Юла, OLX за 2 секунды. Экономьте время — продавайте быстрее!',
+    'Бесплатный генератор продающих описаний для объявлений с помощью ИИ. Загрузите фото, укажите характеристики — получите готовый текст для Авито, Юла, OLX за считанные секунды. Экономьте время — продавайте быстрее!',
   keywords: [
     'генератор объявлений',
     'описание для авито',
@@ -25,20 +25,20 @@ export const metadata: Metadata = {
     'текст для доски объявлений',
   ],
   openGraph: {
-    title: 'AI Генератор Объявлений — Создайте описание за 2 секунды',
+    title: 'AI Генератор Объявлений — Создайте описание за считанные секунды',
     description: 'Продающие описания для Авито и Юла с помощью ИИ. Бесплатные кредиты при регистрации.',
     type: 'website',
     locale: 'ru_RU',
-    siteName: 'AdGenius.AI',
-    url: 'https://adgenius.ai',
+    siteName: 'ProfitText.AI',
+    url: 'https://profit-text.ru',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Генератор Объявлений — AdGenius.AI',
+    title: 'AI Генератор Объявлений — ProfitText.AI',
     description: 'Продавайте быстрее с умными описаниями от ИИ.',
   },
   alternates: {
-    canonical: 'https://adgenius.ai',
+    canonical: 'https://profit-text.ru',
   },
 };
 
@@ -51,12 +51,12 @@ const faqData = [
   {
     question: 'Сколько стоит генерация одного объявления?',
     answer:
-      'Одна генерация стоит 1 кредит. При регистрации вы получаете 5 бесплатных кредитов. Дополнительные кредиты можно приобрести от 99 ₽ за пакет.',
+      'Одна генерация стоит 1 кредит. При регистрации вы получаете 3 бесплатных кредита. Дополнительные кредиты можно приобрести от 99 ₽ за пакет.',
   },
   {
     question: 'Какие площадки поддерживаются?',
     answer:
-      'Генератор создаёт описания, подходящие для всех популярных площадок: Авито, Юла, OLX, Яндекс.Объявления и другие русскоязычные доски объявлений.',
+      'Генератор создаёт описания, подходящие для всех популярных площадок: Авито, Юла, Дром и другие русскоязычные доски объявлений.',
   },
   {
     question: 'Можно ли редактировать сгенерированный текст?',
@@ -66,7 +66,7 @@ const faqData = [
   {
     question: 'Как оплатить кредиты?',
     answer:
-      'Оплата производится через безопасную платёжную систему Robokassa. Принимаются карты Visa, Mastercard, МИР, СБП и другие способы оплаты.',
+      'Оплата производится через безопасную платёжную систему Robokassa. Принимаются карты МИР, СБП и другие способы оплаты.',
   },
   {
     question: 'Можно ли вернуть деньги?',
@@ -104,15 +104,15 @@ const steps = [
       </svg>
     ),
     title: 'Получите результат',
-    desc: 'ИИ создаст продающее описание за 2 секунды. Копируйте и размещайте на любой площадке.',
+    desc: 'ИИ создаст продающее описание за считанные секунды. Копируйте и размещайте на любой площадке.',
   },
 ];
 
 const stats = [
-  { value: '50 000+', label: 'объявлений создано' },
-  { value: '2 сек', label: 'среднее время генерации' },
-  { value: '4.8/5', label: 'средняя оценка' },
-  { value: '12 000+', label: 'довольных пользователей' },
+  { value: '5 200+', label: 'объявлений создано за всё время' },
+  { value: '3 сек', label: 'среднее время генерации текста' },
+  { value: '95%', label: 'пользователей довольны результатом' },
+  { value: '1 800+', label: 'активных пользователей сервиса' },
 ];
 
 export default function HomePage() {
@@ -148,7 +148,7 @@ export default function HomePage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                 </span>
-                Нейросеть нового поколения для создания объявлений
+                Создавайте объявления с помощью ИИ
               </div>
 
               {/* Heading h1 */}
@@ -157,7 +157,7 @@ export default function HomePage() {
                 <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   продающее объявление
                 </span>{' '}
-                за 2 секунды
+                за считанные секунды
               </h1>
 
               {/* Sub */}
@@ -248,7 +248,7 @@ export default function HomePage() {
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
                 Почему выбирают{' '}
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">AdGenius.AI</span>
+                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">ProfitText.AI</span>
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                 Мощная нейросеть, заточенная под российские площадки объявлений
@@ -260,7 +260,7 @@ export default function HomePage() {
                 {
                   icon: '⚡',
                   title: 'Мгновенная генерация',
-                  desc: 'Получайте продающий текст за 2 секунды. Никакого ожидания — AI работает молниеносно.',
+                  desc: 'Получайте продающий текст за считанные секунды. Никакого ожидания — AI работает молниеносно.',
                 },
                 {
                   icon: '🎯',
@@ -285,7 +285,7 @@ export default function HomePage() {
                 {
                   icon: '🔒',
                   title: 'Безопасные платежи',
-                  desc: 'Оплата через Robokassa — поддержка Visa, Mastercard, МИР, СБП и других методов.',
+                  desc: 'Оплата через Robokassa — поддержка МИР, СБП и других методов.',
                 },
               ].map((item, i) => (
                 <div
@@ -318,39 +318,39 @@ export default function HomePage() {
               <PricingCard
                 name="Старт"
                 price="99 ₽"
-                credits="10 кредитов"
+                credits="15 кредитов"
                 features={[
-                  '10 генераций объявлений',
+                  '15 генераций объявлений',
                   'Все категории товаров',
                   '5 тонов описания',
                   'Оптимизация текста',
                   'Загрузка фото',
                 ]}
-                ctaText="Купить 10 кредитов"
+                ctaText="Купить 15 кредитов"
               />
               <PricingCard
                 name="Профи"
-                price="249 ₽"
-                priceNote="/ экономия 17%"
-                credits="30 кредитов"
+                price="390 ₽"
+                priceNote="/ экономия 35%"
+                credits="60 кредитов"
                 recommended
                 features={[
-                  '30 генераций объявлений',
+                  '60 генераций объявлений',
                   'Все категории товаров',
                   '5 тонов описания',
                   'Оптимизация текста',
                   'Загрузка фото',
                   'Приоритетная генерация',
                 ]}
-                ctaText="Купить 30 кредитов"
+                ctaText="Купить 60 кредитов"
               />
               <PricingCard
                 name="Бизнес"
-                price="499 ₽"
-                priceNote="/ экономия 33%"
-                credits="75 кредитов"
+                price="990 ₽"
+                priceNote="/ экономия 45%"
+                credits="200 кредитов"
                 features={[
-                  '75 генераций объявлений',
+                  '200 генераций объявлений',
                   'Все категории товаров',
                   '5 тонов описания',
                   'Оптимизация текста',
@@ -358,12 +358,12 @@ export default function HomePage() {
                   'Приоритетная генерация',
                   'Email-поддержка',
                 ]}
-                ctaText="Купить 75 кредитов"
+                ctaText="Купить 200 кредитов"
               />
             </div>
 
             <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10">
-              Безопасная оплата через Robokassa. Принимаем Visa, Mastercard, МИР, СБП.
+              Безопасная оплата через Robokassa. Принимаем МИР, СБП.
               <br />
               <Link href="/refund" className="text-blue-600 hover:underline">Условия возврата</Link>
               {' · '}
@@ -419,8 +419,8 @@ export default function HomePage() {
               <span className="text-blue-200">уже сегодня</span>
             </h2>
             <p className="text-lg text-blue-100/80 max-w-2xl mx-auto mb-10">
-              Присоединяйтесь к 12 000+ продавцов, которые уже используют ИИ для создания объявлений.
-              5 бесплатных генераций при регистрации!
+              Присоединяйтесь к 5 200+ продавцов, которые уже используют ИИ для создания объявлений.
+              3 бесплатных кредита при регистрации!
             </p>
             <Link
               href="/generator"

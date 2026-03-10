@@ -24,10 +24,10 @@ describe('AdGenerator with Credit System', () => {
 
   it('should deduct credits on successful ad generation', async () => {
     const spendCreditsSpy = vi.spyOn(creditService, 'spendCredits').mockResolvedValue({ success: true, new_balance: 9 });
-    
+
     render(<AdGenerator />);
-    
-    fireEvent.click(screen.getByText('Сгенерировать'));
+
+    fireEvent.click(screen.getByText('Сгенерировать с AI'));
 
     await waitFor(() => {
       expect(spendCreditsSpy).toHaveBeenCalledWith(1, 'Ad Generation');
@@ -40,7 +40,7 @@ describe('AdGenerator with Credit System', () => {
     const spendCreditsSpy = vi.spyOn(creditService, 'spendCredits');
 
     render(<AdGenerator />);
-    fireEvent.click(screen.getByText('Сгенерировать'));
+    fireEvent.click(screen.getByText('Недостаточно кредитов'));
 
     await waitFor(() => {
       expect(spendCreditsSpy).not.toHaveBeenCalled();
@@ -53,7 +53,7 @@ describe('AdGenerator with Credit System', () => {
 
     render(<AdGenerator />);
     // First generate an ad to enable optimization
-    fireEvent.click(screen.getByText('Сгенерировать'));
+    fireEvent.click(screen.getByText('Сгенерировать с AI'));
     await waitFor(() => { /* wait for generation */ });
 
     // Now optimize

@@ -25,11 +25,11 @@ export function OrganizationSchema() {
         <SchemaOrg
             type="Organization"
             data={{
-                name: 'AdGenius.AI',
-                url: 'https://adgenius.ai',
-                logo: 'https://adgenius.ai/logo.png',
+                name: 'ProfitText.AI',
+                url: 'https://profit-text.ru',
+                logo: 'https://profit-text.ru/logo.png',
                 description: 'AI-генератор продающих объявлений для Авито, Юла и других площадок',
-                email: 'support@adgenius.ai',
+                email: 'support@profit-text.ru',
                 telephone: '+7-999-123-45-67',
                 address: {
                     '@type': 'PostalAddress',
@@ -37,7 +37,7 @@ export function OrganizationSchema() {
                     addressCountry: 'RU',
                     streetAddress: 'ул. Примерная, д. 1',
                 },
-                sameAs: ['https://t.me/adgenius_ai'],
+                sameAs: ['https://t.me/profittext_ai'],
                 contactPoint: {
                     '@type': 'ContactPoint',
                     telephone: '+7-999-123-45-67',
@@ -54,13 +54,13 @@ export function WebSiteSchema() {
         <SchemaOrg
             type="WebSite"
             data={{
-                name: 'AdGenius.AI — Генератор объявлений на базе ИИ',
-                url: 'https://adgenius.ai',
-                description: 'Создавайте продающие объявления для Авито, Юла и OLX с помощью искусственного интеллекта',
+                name: 'ProfitText.AI — Генератор объявлений на базе ИИ',
+                url: 'https://profit-text.ru',
+                description: 'Создавайте продающие объявления для Авито, Юла и Drom с помощью искусственного интеллекта',
                 inLanguage: 'ru-RU',
                 potentialAction: {
                     '@type': 'SearchAction',
-                    target: 'https://adgenius.ai/generator?q={search_term_string}',
+                    target: 'https://profit-text.ru/generator?q={search_term_string}',
                     'query-input': 'required name=search_term_string',
                 },
             }}
@@ -95,7 +95,7 @@ export function ServiceSchema({ name, description, price }: { name: string; desc
                 description,
                 provider: {
                     '@type': 'Organization',
-                    name: 'AdGenius.AI',
+                    name: 'ProfitText.AI',
                 },
                 offers: {
                     '@type': 'Offer',

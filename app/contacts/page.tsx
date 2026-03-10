@@ -5,8 +5,8 @@ import ContactForm from '../../components/ContactForm';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-    title: 'Контакты — AdGenius.AI | Связаться с нами',
-    description: 'Свяжитесь с командой AdGenius.AI. Поддержка, вопросы по оплате, сотрудничество. Телефон, email, форма обратной связи.',
+    title: 'Контакты — ProfitText.AI | Связаться с нами',
+    description: 'Свяжитесь с командой ProfitText.AI. Поддержка, вопросы по оплате, сотрудничество. Телефон, email, форма обратной связи.',
     robots: { index: true, follow: true },
 };
 
@@ -40,8 +40,8 @@ export default function ContactsPage() {
                                     </svg>
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Email</h3>
-                                <a href="mailto:support@adgenius.ai" className="text-blue-600 hover:underline text-sm">
-                                    support@adgenius.ai
+                                <a href="mailto:support@profit-text.ru" className="text-blue-600 hover:underline text-sm">
+                                    support@profit-text.ru
                                 </a>
                                 <p className="text-xs text-gray-500 mt-1">Ответим в течение 24 часов</p>
                             </div>
@@ -68,8 +68,8 @@ export default function ContactsPage() {
                                     </svg>
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Telegram</h3>
-                                <a href="https://t.me/adgenius_ai" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
-                                    @adgenius_ai
+                                <a href="https://t.me/profittext_ai" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
+                                    @profittext_ai
                                 </a>
                                 <p className="text-xs text-gray-500 mt-1">Быстрые ответы в мессенджере</p>
                             </div>

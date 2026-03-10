@@ -4,7 +4,7 @@ import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
 
 export const metadata: Metadata = {
-    title: 'Оплата успешна — AdGenius.AI',
+    title: 'Оплата успешна — ProfitText.AI',
     description: 'Ваш платёж успешно обработан. Кредиты зачислены на ваш счёт.',
     robots: { index: false, follow: false },
 };

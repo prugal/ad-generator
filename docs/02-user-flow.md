@@ -208,20 +208,6 @@
 - Копировать текст
 - Копировать ссылку на приложение
 
-## Аналитика событий
-
-```typescript
-logEvent('change_category', { category: 'electronics' });
-logEvent('change_tone', { tone: 'polite' });
-logEvent('generate_ad_click', { category, tone });
-logEvent('generate_ad_success', { category });
-logEvent('generate_ad_error', { category, error });
-logEvent('optimize_ad_click', { category });
-logEvent('copy_ad_click', { category });
-logEvent('share_ad_click', { method, category });
-logEvent('toggle_theme', { theme: 'dark' });
-```
-
 ## Edge Cases
 
 ### 1. Пустой localStorage (новый пользователь)

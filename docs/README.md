@@ -22,7 +22,6 @@
 - 💡 Умные советы от AI по улучшению объявлений
 - 🌙 Тёмная/светлая тема
 - 📱 Адаптивный дизайн
-- 📊 Google Analytics интеграция
 - 💳 Прием платежей через Robokassa
 - 🔐 Аутентификация пользователей (Google)
 - 💰 Система кредитов для контроля использования
@@ -76,7 +75,6 @@ ROBOKASSA_PASSWORD2=your_password2
 ROBOKASSA_TEST_MODE=true
 
 # Опционально
-NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
@@ -85,7 +83,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 ├── app/              # Next.js App Router страницы
 ├── components/       # React компоненты
-├── services/         # API сервисы (Gemini, Analytics)
+├── services/         # API сервисы (Gemini)
 ├── docs/            # Документация
 ├── public/          # Статические файлы
 └── types.ts         # TypeScript типы

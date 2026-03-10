@@ -4,8 +4,8 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 export const metadata: Metadata = {
-    title: 'Условия использования — AdGenius.AI',
-    description: 'Условия предоставления услуг сервиса AdGenius.AI. Описание процесса оказания услуг, обязательства сторон и правила использования.',
+    title: 'Условия использования — ProfitText.AI',
+    description: 'Условия предоставления услуг сервиса ProfitText.AI. Описание процесса оказания услуг, обязательства сторон и правила использования.',
     robots: { index: true, follow: true },
 };
 
@@ -26,7 +26,7 @@ export default function TermsPage() {
                         <section>
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-3">1. Описание сервиса</h2>
                             <p>
-                                AdGenius.AI — это онлайн-сервис для автоматической генерации текстовых описаний товаров и услуг
+                                ProfitText.AI — это онлайн-сервис для автоматической генерации текстовых описаний товаров и услуг
                                 с использованием технологий искусственного интеллекта. Сервис предназначен для создания продающих
                                 объявлений для площадок Авито, Юла, OLX и других досок объявлений.
                             </p>
@@ -67,21 +67,21 @@ export default function TermsPage() {
                                     <tbody>
                                         <tr>
                                             <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">Старт</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">10</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">15</td>
                                             <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">99 ₽</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">9.90 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">6.60 ₽</td>
                                         </tr>
                                         <tr className="bg-gray-50/50 dark:bg-gray-800/30">
                                             <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">Профи</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">30</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">249 ₽</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">8.30 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">60</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">390 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">6.50 ₽</td>
                                         </tr>
                                         <tr>
                                             <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">Бизнес</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">75</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">499 ₽</td>
-                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">6.65 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">200</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">990 ₽</td>
+                                            <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">4.95 ₽</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -102,7 +102,7 @@ export default function TermsPage() {
                             </p>
                             <p>4.2. Доступные способы оплаты:</p>
                             <ul className="list-disc pl-6 space-y-1">
-                                <li>Банковские карты: Visa, Mastercard, МИР</li>
+                                <li>Банковские карты: МИР</li>
                                 <li>Система быстрых платежей (СБП)</li>
                                 <li>Электронные кошельки (ЮMoney, QIWI)</li>
                                 <li>Мобильные платежи</li>

@@ -126,7 +126,7 @@ export default function ContactForm() {
                     <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                     </svg>
-                    Произошла ошибка. Попробуйте ещё раз или напишите нам на support@adgenius.ai
+                    Произошла ошибка. Попробуйте ещё раз или напишите нам на support@profit-text.ru
                 </div>
             )}
         </form>

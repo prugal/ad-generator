@@ -253,9 +253,9 @@ interface RulesModalProps {
    - Повторная генерация: 0.5 кредита
 
 2. **Пакеты пополнения**:
-   - Starter: 15 кредитов / 99₽
-   - Seller: 60 кредитов / 390₽ (Популярный)
-   - Business: 200 кредитов 990₽
+   - Старт: 15 кредитов / 99₽
+   - Профи: 60 кредитов / 390₽ (Популярный)
+   - Бизнес: 200 кредитов / 990₽
 
 3. **Условия использования**
 
@@ -275,7 +275,6 @@ interface RulesModalProps {
 
 **Содержит**:
 - SEO метаданные (title, description, keywords, OG, Twitter)
-- Google Analytics Script (conditional)
 - Header с навигацией
 - Footer
 - Theme provider (class-based)
@@ -288,7 +287,7 @@ Logo ──────────────────────── Fe
 **Метаданные**:
 - Title: "AI Classifieds Ad Generator"
 - Description: SEO-optimized SaaS for classified ads
-- Keywords: AI ad generator, Avito, OLX, Youla, classifieds copywriting
+- Keywords: AI ad generator, Avito, Drom, Youla, classifieds copywriting
 
 ### Home Page
 

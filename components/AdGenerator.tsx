@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, Link as LinkIcon, Moon, Sun, AlertTriangle, Lightbulb, Info, Pencil, ChevronDown } from 'lucide-react';
+import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, LinkIcon, AlertTriangle, Lightbulb, Info, Pencil, ChevronDown } from 'lucide-react';
 import { CategoryId, AppState } from '../types';
 import { CategoryCard } from './CategoryCard';
 import { InputField } from './InputField';
@@ -12,7 +12,6 @@ import { ImageUpload } from './ImageUpload';
 import { RulesModal } from './RulesModal';
 import { generateAd, optimizeAdWithKeywords } from '../services/geminiService';
 import AuthButton from './AuthButton';
-import { logEvent } from '../services/analytics';
 import { useCreditStore } from '@/services/creditStore';
 import { creditService } from '@/services/creditService';
 import { useAuthStore } from '@/services/authStore';
@@ -24,7 +23,6 @@ const initialServices = { serviceType: '', experience: '', benefit: '', price: '
 const initialClothing = { type: '', size: '', condition: '', brand: '', image: '', price: '' };
 
 const STORAGE_KEY = 'ai_ads_app_state_v1';
-const THEME_KEY = 'ai_ads_theme';
 
 // Helper to clean up double escaped newlines sometimes returned by AI in JSON
 const cleanTextResponse = (text: string): string => {
@@ -35,46 +33,9 @@ const cleanTextResponse = (text: string): string => {
 export default function AdGenerator() {
   const { balance, setBalance } = useCreditStore();
   const { user } = useAuthStore();
-  // Theme state initialization
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isThemeLoaded, setIsThemeLoaded] = useState(false);
 
   const [showRules, setShowRules] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-  // Load theme on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      if (savedTheme) {
-        setIsDarkMode(savedTheme === 'dark');
-      } else {
-        setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
-      }
-      setIsThemeLoaded(true);
-    }
-  }, []);
-
-  // Apply theme to document
-  useEffect(() => {
-    if (!isThemeLoaded) return;
-
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem(THEME_KEY, 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem(THEME_KEY, 'light');
-    }
-  }, [isDarkMode, isThemeLoaded]);
-
-  const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    logEvent('toggle_theme', { theme: newTheme ? 'dark' : 'light' });
-  };
-
-
 
   // Initialize state
   const [state, setState] = useState<AppState>({
@@ -210,7 +171,6 @@ export default function AdGenerator() {
   }, [state.generatedText, state.isLoading]);
 
   const handleCategoryChange = (id: CategoryId) => {
-    logEvent('change_category', { category: id });
     setState(prev => ({
       ...prev,
       category: id,
@@ -309,9 +269,7 @@ export default function AdGenerator() {
       setBalance(balance - cost);
 
       setState(prev => ({ ...prev, isLoading: false, generatedText: cleanTextResponse(adText), smartTip: cleanTextResponse(smartTip) }));
-      logEvent('generate_ad_success', { category: state.category, cost });
     } catch (err) {
-      logEvent('generate_ad_error', { category: state.category, error: err instanceof Error ? err.message : 'Unknown' });
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -341,7 +299,6 @@ export default function AdGenerator() {
 
     if (!state.generatedText) return;
 
-    logEvent('optimize_ad_click', { category: state.category });
     setState(prev => ({ ...prev, isOptimizing: true, error: null }));
 
     try {
@@ -366,9 +323,7 @@ export default function AdGenerator() {
         generatedText: fullText,
         keywords: keywords
       }));
-      logEvent('optimize_ad_success', { category: state.category, keyword_count: keywords.length });
     } catch (err) {
-      logEvent('optimize_ad_error', { category: state.category, error: err instanceof Error ? err.message : 'Unknown' });
       setState(prev => ({
         ...prev,
         isOptimizing: false,
@@ -379,7 +334,6 @@ export default function AdGenerator() {
 
   const handleCopy = () => {
     if (state.generatedText) {
-      logEvent('copy_ad_click', { category: state.category });
       navigator.clipboard.writeText(state.generatedText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -387,7 +341,6 @@ export default function AdGenerator() {
   };
 
   const handleShare = async () => {
-    logEvent('share_ad_click', { method: typeof navigator?.share === 'function' ? 'native' : 'modal', category: state.category });
     if (typeof navigator?.share === 'function') {
       try {
         await navigator.share({
@@ -637,14 +590,6 @@ export default function AdGenerator() {
               >
                 <Info className="w-5 h-5" />
               </button>
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-                title={isDarkMode ? "Светлая тема" : "Темная тема"}
-                suppressHydrationWarning
-              >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
               <AuthButton />
               {user && (
                 <div className="flex items-center space-x-2 text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -720,7 +665,6 @@ export default function AdGenerator() {
                 <ToneSelector
                   selectedTone={state.tone}
                   onChange={(t) => {
-                    logEvent('change_tone', { tone: t });
                     setState(s => ({ ...s, tone: t }));
                   }}
                 />
