@@ -56,7 +56,7 @@ export function WebSiteSchema() {
             data={{
                 name: 'ProfitText.AI — Генератор объявлений на базе ИИ',
                 url: 'https://profit-text.ru',
-                description: 'Создавайте продающие объявления для Авито, Юла и OLX с помощью искусственного интеллекта',
+                description: 'Создавайте продающие объявления для Авито, Юла и Drom с помощью искусственного интеллекта',
                 inLanguage: 'ru-RU',
                 potentialAction: {
                     '@type': 'SearchAction',

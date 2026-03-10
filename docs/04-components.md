@@ -287,7 +287,7 @@ Logo ──────────────────────── Fe
 **Метаданные**:
 - Title: "AI Classifieds Ad Generator"
 - Description: SEO-optimized SaaS for classified ads
-- Keywords: AI ad generator, Avito, OLX, Youla, classifieds copywriting
+- Keywords: AI ad generator, Avito, Drom, Youla, classifieds copywriting
 
 ### Home Page
 

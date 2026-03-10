@@ -28,7 +28,7 @@ export default function PrivacyPage() {
                             <p>
                                 Настоящая Политика конфиденциальности описывает порядок сбора, использования, хранения и защиты
                                 персональных данных пользователей сервиса ProfitText.AI (далее — «Сервис»), принадлежащего
-                                ИП Иванов Иван Иванович (ИНН: 123456789012, ОГРНИП: 312345678901234).
+                                ИП Ругаль Павел Николаевич (ИНН: 420525000910, ОГРНИП: 324420500058634).
                             </p>
                             <p>
                                 Используя Сервис, вы соглашаетесь с условиями данной Политики. Если вы не согласны с какими-либо
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
                                 <li>Отозвать согласие на обработку данных.</li>
                             </ul>
                             <p className="mt-2">
-                                Для реализации этих прав направьте запрос на <strong>support@profit-text.ru</strong>.
+                                Для реализации этих прав направьте запрос на <strong>rugal.pavel@yandex.ru</strong>.
                             </p>
                         </section>
 
@@ -135,9 +135,8 @@ export default function PrivacyPage() {
                                 По вопросам, связанным с обработкой персональных данных, обращайтесь:
                             </p>
                             <ul className="list-none space-y-1">
-                                <li><strong>Email:</strong> support@profit-text.ru</li>
-                                <li><strong>Телефон:</strong> +7 (999) 123-45-67</li>
-                                <li><strong>Адрес:</strong> г. Москва, ул. Примерная, д. 1</li>
+                                <li><strong>Email:</strong> rugal.pavel@yandex.ru</li>
+                                <li><strong>Телефон:</strong> +7 905 915-55-59</li>
                             </ul>
                         </section>
                     </div>
