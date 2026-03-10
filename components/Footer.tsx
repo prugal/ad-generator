@@ -92,7 +92,7 @@ export default function Footer() {
                         <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Реквизиты</h3>
                         <div className="space-y-2 text-sm text-gray-400">
                             <p><span className="text-gray-500">Наименование:</span><br />ИП Ругаль Павел Николаевич</p>
-                            <p><span className="text-gray-500">ИНН:</span> 420525000910</p>
+                            <p><span className="text-gray-500">ИНН:</span> 420537607410</p>
                             <p><span className="text-gray-500">ОГРН/ОГРНИП:</span> 324420500058634</p>
                             <p><span className="text-gray-500">Email:</span> rugal.pavel@yandex.ru</p>
                             <p><span className="text-gray-500">Телефон:</span> +7 905 915-55-59</p>
