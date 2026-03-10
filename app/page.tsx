@@ -420,7 +420,7 @@ export default function HomePage() {
             </h2>
             <p className="text-lg text-blue-100/80 max-w-2xl mx-auto mb-10">
               Присоединяйтесь к 12 000+ продавцов, которые уже используют ИИ для создания объявлений.
-              5 бесплатных генераций при регистрации!
+              3 бесплатных кредита при регистрации!
             </p>
             <Link
               href="/generator"

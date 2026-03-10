@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, Link as LinkIcon, Moon, Sun, AlertTriangle, Lightbulb, Info, Pencil, ChevronDown } from 'lucide-react';
+import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, LinkIcon, AlertTriangle, Lightbulb, Info, Pencil, ChevronDown } from 'lucide-react';
 import { CategoryId, AppState } from '../types';
 import { CategoryCard } from './CategoryCard';
 import { InputField } from './InputField';
@@ -23,7 +23,6 @@ const initialServices = { serviceType: '', experience: '', benefit: '', price: '
 const initialClothing = { type: '', size: '', condition: '', brand: '', image: '', price: '' };
 
 const STORAGE_KEY = 'ai_ads_app_state_v1';
-const THEME_KEY = 'ai_ads_theme';
 
 // Helper to clean up double escaped newlines sometimes returned by AI in JSON
 const cleanTextResponse = (text: string): string => {
@@ -34,45 +33,9 @@ const cleanTextResponse = (text: string): string => {
 export default function AdGenerator() {
   const { balance, setBalance } = useCreditStore();
   const { user } = useAuthStore();
-  // Theme state initialization
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isThemeLoaded, setIsThemeLoaded] = useState(false);
 
   const [showRules, setShowRules] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-  // Load theme on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      if (savedTheme) {
-        setIsDarkMode(savedTheme === 'dark');
-      } else {
-        setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
-      }
-      setIsThemeLoaded(true);
-    }
-  }, []);
-
-  // Apply theme to document
-  useEffect(() => {
-    if (!isThemeLoaded) return;
-
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem(THEME_KEY, 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem(THEME_KEY, 'light');
-    }
-  }, [isDarkMode, isThemeLoaded]);
-
-  const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-  };
-
-
 
   // Initialize state
   const [state, setState] = useState<AppState>({
@@ -626,14 +589,6 @@ export default function AdGenerator() {
                 suppressHydrationWarning
               >
                 <Info className="w-5 h-5" />
-              </button>
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-                title={isDarkMode ? "Светлая тема" : "Темная тема"}
-                suppressHydrationWarning
-              >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
               <AuthButton />
               {user && (

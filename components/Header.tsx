@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '../services/authStore';
 import AuthButton from './AuthButton';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -59,6 +60,7 @@ export default function Header() {
 
                     {/* CTA + Auth */}
                     <div className="hidden lg:flex items-center gap-3">
+                        <ThemeToggle />
                         <AuthButton />
                         <Link
                             href="/generator"
@@ -94,6 +96,10 @@ export default function Header() {
                     }`}
             >
                 <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 px-4 py-4 space-y-1">
+                    <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Тема</span>
+                        <ThemeToggle />
+                    </div>
                     {navLinks.map((link) => (
                         <Link
                             key={link.href}
