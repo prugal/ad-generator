@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, LinkIcon, AlertTriangle, Lightbulb, Info, Pencil, ChevronDown } from 'lucide-react';
+import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, LinkIcon, AlertTriangle, Lightbulb, Info, Pencil, ChevronDown, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import { CategoryId, AppState } from '../types';
 import { CategoryCard } from './CategoryCard';
 import { InputField } from './InputField';
@@ -596,55 +597,42 @@ export default function AdGenerator() {
 
       <div className="max-w-2xl mx-auto space-y-8">
 
-        {/* Header */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            {/* Logo */}
-            <div className="inline-flex items-center justify-center p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm" suppressHydrationWarning>
-              <Sparkles className="w-8 h-8 text-primary-600 dark:text-primary-400" />
-            </div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors group">
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              На главный сайт
+          </Link>
 
-            {/* Controls */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => setShowRules(true)}
-                className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-                title="Правила и тарифы"
-                suppressHydrationWarning
-              >
-                <Info className="w-5 h-5" />
-              </button>
-              {!isInitialized ? (
-                <div className="h-9 w-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />
-              ) : (
-                <AuthButton />
-              )}
-              {user && (
-                <div className="flex items-center space-x-3 text-sm font-medium">
-                  {(user.user_metadata?.full_name || user.email) && (
-                    <span className="hidden sm:inline-block text-gray-600 dark:text-gray-300">
-                      {user.user_metadata?.full_name || user.email}
-                    </span>
-                  )}
-                  <div className="flex items-center space-x-1.5 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full border border-blue-100 dark:border-blue-800/30">
-                    <Sparkles className="w-4 h-4 text-blue-500" />
-                    <span className="text-blue-700 dark:text-blue-400">
-                      {Number.isInteger(balance) ? balance : balance.toFixed(1)} кредитов
-                    </span>
-                  </div>
+          {/* Controls */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setShowRules(true)}
+              className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+              title="Правила и тарифы"
+              suppressHydrationWarning
+            >
+              <Info className="w-5 h-5" />
+            </button>
+            {!isInitialized ? (
+              <div className="h-9 w-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />
+            ) : (
+              <AuthButton />
+            )}
+            {user && (
+              <div className="flex items-center space-x-3 text-sm font-medium">
+                {(user.user_metadata?.full_name || user.email) && (
+                  <span className="hidden sm:inline-block text-gray-600 dark:text-gray-300">
+                    {user.user_metadata?.full_name || user.email}
+                  </span>
+                )}
+                <div className="flex items-center space-x-1.5 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full border border-blue-100 dark:border-blue-800/30">
+                  <Sparkles className="w-4 h-4 text-blue-500" />
+                  <span className="text-blue-700 dark:text-blue-400">
+                    {Number.isInteger(balance) ? balance : balance.toFixed(1)} кредитов
+                  </span>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Title */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-              AI Генератор Объявлений
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
-              Создайте идеальное описание для Авито или Юлы за пару секунд.
-            </p>
+              </div>
+            )}
           </div>
         </div>
 
