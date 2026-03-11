@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { generatePaymentUrl } from '@/services/robokassaService';
-import { supabase } from '@/services/supabase';
+import { supabaseAdmin } from '@/services/supabaseAdmin';
 
 // Pricing plans
 const PLANS: Record<string, { credits: number; price: number; name: string }> = {
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         const invId = Date.now() % 2147483647; // Robokassa requires int32
 
         // Store payment intent in database
-        const { error: dbError } = await supabase
+        const { error: dbError } = await supabaseAdmin
             .from('payment_intents')
             .insert({
                 inv_id: invId,
@@ -42,12 +42,14 @@ export async function POST(request: Request) {
                 credits: plan.credits,
                 amount: plan.price,
                 status: 'pending',
-                created_at: new Date().toISOString(),
             });
 
         if (dbError) {
             console.error('Failed to store payment intent:', dbError);
-            // Continue anyway - we can reconcile later
+            return NextResponse.json(
+                { error: 'Failed to create payment intent', details: dbError.message },
+                { status: 500 }
+            );
         }
 
         // Generate Robokassa payment URL

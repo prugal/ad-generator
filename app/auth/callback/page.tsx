@@ -41,20 +41,24 @@ export default function AuthCallback() {
           // Initialize auth state
           await initializeAuth();
           setStatus('success');
-          
-          // Redirect to home after a short delay
+
+          // Redirect to generator or saved location after a short delay
           setTimeout(() => {
-            router.push('/');
+            const redirectPath = sessionStorage.getItem('auth_redirect_path') || '/generator';
+            sessionStorage.removeItem('auth_redirect_path');
+            router.push(redirectPath);
           }, 1500);
         } else {
           // Check if user is already authenticated
           const { data: { session } } = await supabase.auth.getSession();
-          
+
           if (session) {
             await initializeAuth();
             setStatus('success');
             setTimeout(() => {
-              router.push('/');
+              const redirectPath = sessionStorage.getItem('auth_redirect_path') || '/generator';
+              sessionStorage.removeItem('auth_redirect_path');
+              router.push(redirectPath);
             }, 1500);
           } else {
             setStatus('error');
@@ -100,7 +104,7 @@ export default function AuthCallback() {
             Успешный вход!
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Перенаправление на главную страницу...
+            Перенаправление...
           </p>
         </div>
       </div>

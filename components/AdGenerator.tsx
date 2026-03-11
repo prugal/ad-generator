@@ -32,7 +32,7 @@ const cleanTextResponse = (text: string): string => {
 
 export default function AdGenerator() {
   const { balance, setBalance } = useCreditStore();
-  const { user } = useAuthStore();
+  const { user, isInitialized } = useAuthStore();
 
   const [showRules, setShowRules] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -92,6 +92,30 @@ export default function AdGenerator() {
       prevUserId.current = user?.id || null;
     }
   }, [user?.id]);
+
+  // Load credits when user changes
+  useEffect(() => {
+    const loadCredits = async () => {
+      if (user) {
+        try {
+          const data = await creditService.getCredits();
+          console.log('Loaded credits data:', data);
+          // The RPC returns { credits: { balance: ... }, transactions: [...] }
+          // or sometimes just { balance: ... } depending on the version
+          const balanceValue = data?.credits?.balance ?? data?.balance;
+          console.log('Extracted balance:', balanceValue);
+          if (typeof balanceValue === 'number') {
+            setBalance(balanceValue);
+          }
+        } catch (error) {
+          console.error('Failed to load credits:', error);
+        }
+      } else {
+        setBalance(0);
+      }
+    };
+    loadCredits();
+  }, [user, setBalance]);
 
   // Load state from local storage on mount
   useEffect(() => {
@@ -590,11 +614,24 @@ export default function AdGenerator() {
               >
                 <Info className="w-5 h-5" />
               </button>
-              <AuthButton />
+              {!isInitialized ? (
+                <div className="h-9 w-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />
+              ) : (
+                <AuthButton />
+              )}
               {user && (
-                <div className="flex items-center space-x-2 text-sm font-medium text-gray-600 dark:text-gray-300">
-                  <Sparkles className="w-5 h-5 text-primary-500" />
-                  <span>{Number.isInteger(balance) ? balance : balance.toFixed(1)} кредитов</span>
+                <div className="flex items-center space-x-3 text-sm font-medium">
+                  {(user.user_metadata?.full_name || user.email) && (
+                    <span className="hidden sm:inline-block text-gray-600 dark:text-gray-300">
+                      {user.user_metadata?.full_name || user.email}
+                    </span>
+                  )}
+                  <div className="flex items-center space-x-1.5 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full border border-blue-100 dark:border-blue-800/30">
+                    <Sparkles className="w-4 h-4 text-blue-500" />
+                    <span className="text-blue-700 dark:text-blue-400">
+                      {Number.isInteger(balance) ? balance : balance.toFixed(1)} кредитов
+                    </span>
+                  </div>
                 </div>
               )}
             </div>

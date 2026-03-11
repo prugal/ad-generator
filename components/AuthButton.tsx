@@ -11,7 +11,7 @@ interface AuthButtonProps {
 }
 
 export default function AuthButton({ className = '', onLoginSuccess }: AuthButtonProps) {
-  const { isLoading, signInWithGoogle, error, clearError } = useAuthStore();
+  const { user, isLoading, signInWithGoogle, error, clearError } = useAuthStore();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleGoogleSignIn = async () => {
@@ -19,6 +19,11 @@ export default function AuthButton({ className = '', onLoginSuccess }: AuthButto
 
     setIsProcessing(true);
     clearError();
+
+    // Save current path for redirect after login
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('auth_redirect_path', window.location.pathname);
+    }
 
     try {
       await signInWithGoogle();
@@ -31,6 +36,8 @@ export default function AuthButton({ className = '', onLoginSuccess }: AuthButto
       setIsProcessing(false);
     }
   };
+
+  if (user) return null;
 
   return (
     <div className="flex flex-col items-center space-y-2">

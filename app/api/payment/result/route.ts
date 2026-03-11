@@ -6,6 +6,8 @@ import { supabase } from '@/services/supabase';
  * Robokassa ResultURL handler
  * Called by Robokassa server-to-server when payment is confirmed.
  * Must respond with "OK{InvId}" on success.
+ * 
+ * Idempotency: Returns OK{InvId} even for already processed payments to prevent retries.
  */
 export async function POST(request: Request) {
     try {
@@ -39,13 +41,55 @@ export async function POST(request: Request) {
             return new Response('Missing parameters', { status: 400 });
         }
 
-        // Update payment intent status
-        await supabase
+        // Check if payment intent exists and get current status
+        const { data: existingIntent, error: fetchError } = await supabase
+            .from('payment_intents')
+            .select('status, user_id, credits')
+            .eq('inv_id', parseInt(invId, 10))
+            .single();
+
+        // If already completed, return OK immediately (idempotency)
+        if (existingIntent?.status === 'completed') {
+            console.log(`[Robokassa ResultURL] Already processed: InvId=${invId}`);
+            return new Response(`OK${invId}`, {
+                status: 200,
+                headers: { 'Content-Type': 'text/plain' },
+            });
+        }
+
+        // If intent doesn't exist, create it (edge case: callback before create)
+        if (!existingIntent) {
+            console.log(`[Robokassa ResultURL] Creating missing intent for InvId=${invId}`);
+            await supabase
+                .from('payment_intents')
+                .insert({
+                    inv_id: parseInt(invId, 10),
+                    user_id: userId,
+                    plan_id: 'unknown',
+                    credits,
+                    amount: parseFloat(outSum),
+                    status: 'pending',
+                });
+        }
+
+        // Atomic update: only transition from 'pending' to 'completed'
+        const { data: updateResult, error: updateError } = await supabase
             .from('payment_intents')
             .update({ status: 'completed', completed_at: new Date().toISOString() })
-            .eq('inv_id', parseInt(invId, 10));
+            .eq('inv_id', parseInt(invId, 10))
+            .eq('status', 'pending')
+            .select();
 
-        // Add credits to user account
+        // If no rows updated, it means another concurrent request already processed it
+        if (!updateResult || updateResult.length === 0) {
+            console.log(`[Robokassa ResultURL] Concurrent processing detected for InvId=${invId}, returning OK`);
+            return new Response(`OK${invId}`, {
+                status: 200,
+                headers: { 'Content-Type': 'text/plain' },
+            });
+        }
+
+        // Add credits to user account (RPC has built-in idempotency check via reference_id)
         const { data, error } = await supabase.rpc('update_user_credits', {
             p_user_id: userId,
             p_amount: credits,
@@ -58,6 +102,8 @@ export async function POST(request: Request) {
             console.error(`[Robokassa ResultURL] Failed to add credits for InvId=${invId}:`, error);
             // Don't return error to Robokassa — log and investigate manually
             // Still respond OK to prevent retries
+        } else if (data?.duplicate) {
+            console.log(`[Robokassa ResultURL] Duplicate transaction detected for InvId=${invId}`);
         }
 
         console.log(`[Robokassa ResultURL] Success: +${credits} credits for user ${userId}, InvId=${invId}`);
@@ -72,7 +118,6 @@ export async function POST(request: Request) {
         return new Response('Internal Server Error', { status: 500 });
     }
 }
-
 // Robokassa may also send GET requests
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -88,8 +133,11 @@ export async function GET(request: Request) {
         }
     }
 
-    // Reuse POST logic by creating a FormData-like object
+    console.log(`[Robokassa ResultURL GET] InvId=${invId}, OutSum=${outSum}`);
+
+    // Verify signature
     if (!verifyResultSignature(outSum, invId, signatureValue, shpParams)) {
+        console.error(`[Robokassa ResultURL GET] Invalid signature for InvId=${invId}`);
         return new Response('Invalid signature', { status: 400 });
     }
 
@@ -97,14 +145,58 @@ export async function GET(request: Request) {
     const credits = parseInt(shpParams['Shp_credits'] || '0', 10);
 
     if (!userId || !credits) {
+        console.error(`[Robokassa ResultURL GET] Missing userId or credits for InvId=${invId}`);
         return new Response('Missing parameters', { status: 400 });
     }
 
-    await supabase
+    // Check if payment intent exists and get current status
+    const { data: existingIntent } = await supabase
+        .from('payment_intents')
+        .select('status')
+        .eq('inv_id', parseInt(invId, 10))
+        .single();
+
+    // If already completed, return OK immediately (idempotency)
+    if (existingIntent?.status === 'completed') {
+        console.log(`[Robokassa ResultURL GET] Already processed: InvId=${invId}`);
+        return new Response(`OK${invId}`, {
+            status: 200,
+            headers: { 'Content-Type': 'text/plain' },
+        });
+    }
+
+    // If intent doesn't exist, create it
+    if (!existingIntent) {
+        await supabase
+            .from('payment_intents')
+            .insert({
+                inv_id: parseInt(invId, 10),
+                user_id: userId,
+                plan_id: 'unknown',
+                credits,
+                amount: parseFloat(outSum),
+                status: 'pending',
+            });
+    }
+
+    // Atomic update: only transition from 'pending' to 'completed'
+    const { data: updateResult } = await supabase
         .from('payment_intents')
         .update({ status: 'completed', completed_at: new Date().toISOString() })
-        .eq('inv_id', parseInt(invId, 10));
+        .eq('inv_id', parseInt(invId, 10))
+        .eq('status', 'pending')
+        .select();
 
+    // If no rows updated, concurrent request already processed it
+    if (!updateResult || updateResult.length === 0) {
+        console.log(`[Robokassa ResultURL GET] Concurrent processing detected for InvId=${invId}`);
+        return new Response(`OK${invId}`, {
+            status: 200,
+            headers: { 'Content-Type': 'text/plain' },
+        });
+    }
+
+    // Add credits (RPC has built-in idempotency check)
     await supabase.rpc('update_user_credits', {
         p_user_id: userId,
         p_amount: credits,
@@ -112,6 +204,8 @@ export async function GET(request: Request) {
         p_description: `Покупка ${credits} кредитов (InvId: ${invId})`,
         p_reference_id: `robokassa_${invId}`,
     });
+
+    console.log(`[Robokassa ResultURL GET] Success: +${credits} credits for user ${userId}, InvId=${invId}`);
 
     return new Response(`OK${invId}`, {
         status: 200,

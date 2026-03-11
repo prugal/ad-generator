@@ -75,7 +75,33 @@ ROBOKASSA_PASSWORD2=your_password2
 ROBOKASSA_TEST_MODE=true
 
 # Опционально
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=https://profit-text.ru
+```
+
+## Настройка Robokassa
+
+В личном кабинете Robokassa (https://partner.robokassa.ru/) в разделе "Технические настройки" укажите:
+
+**URL для взаимодействия:**
+- Result URL: `https://profit-text.ru/api/payment/result`
+- Success URL: `https://profit-text.ru/api/payment/success`
+- Fail URL: `https://profit-text.ru/payment/fail`
+
+**Методы отправки:**
+- Result URL: `POST` (допустимо также `GET`)
+- Success URL: `GET`
+- Fail URL: `GET`
+
+**Алгоритм хеширования:** `MD5`
+
+**Тестовый режим:**
+1. Включите "Тестовый режим" в кабинете Robokassa
+2. Укажите тестовые пароли #1 и #2 в блоке "Параметры тестовых платежей"
+3. В env установите `ROBOKASSA_TEST_MODE=true` и используйте тестовые пароли
+
+**Боевой режим:**
+1. После активации магазина используйте боевые пароли #1 и #2
+2. В env установите `ROBOKASSA_TEST_MODE=false`
 ```
 
 ## Структура папок

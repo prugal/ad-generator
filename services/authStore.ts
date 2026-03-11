@@ -7,14 +7,15 @@ interface AuthState {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
+  isInitialized: boolean;
   error: string | null;
-  
+
   // Actions
   setUser: (user: User | null) => void;
   setSession: (session: Session | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  
+
   // Auth actions
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -28,6 +29,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       session: null,
       isLoading: false,
+      isInitialized: false,
       error: null,
 
       setUser: (user) => set({ user }),
@@ -40,18 +42,18 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const response = await authService.signInWithGoogle();
-          
+
           if (response.error) {
             set({ error: response.error.message, isLoading: false });
             return;
           }
-          
+
           // The OAuth flow will redirect, so we don't need to set user/session here
           set({ isLoading: false });
         } catch (error) {
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Failed to sign in with Google',
-            isLoading: false 
+            isLoading: false
           });
         }
       },
@@ -60,38 +62,43 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const result = await authService.signOut();
-          
+
           if (result.error) {
             set({ error: result.error.message, isLoading: false });
             return;
           }
-          
-          set({ user: null, session: null, isLoading: false });
+
+          set({ user: null, session: null, isLoading: false, isInitialized: true });
         } catch (error) {
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Failed to sign out',
-            isLoading: false 
+            isLoading: false
           });
         }
       },
 
       initializeAuth: async () => {
+        // If already initialized, don't do it again
+        if (useAuthStore.getState().isInitialized) return;
+
         set({ isLoading: true });
         try {
           const [user, session] = await Promise.all([
             authService.getCurrentUser(),
             authService.getCurrentSession()
           ]);
-          
-          set({ 
-            user, 
-            session, 
-            isLoading: false 
+
+          set({
+            user,
+            session,
+            isLoading: false,
+            isInitialized: true
           });
         } catch (error) {
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Failed to initialize auth',
-            isLoading: false 
+            isLoading: false,
+            isInitialized: true
           });
         }
       },
@@ -111,19 +118,22 @@ export const useAuthStore = create<AuthState>()(
 if (typeof window !== 'undefined') {
   authService.onAuthStateChange((event, session) => {
     const { setUser, setSession } = useAuthStore.getState();
-    
+
     switch (event) {
       case 'SIGNED_IN':
       case 'TOKEN_REFRESHED':
         setUser(session?.user ?? null);
         setSession(session);
+        useAuthStore.setState({ isInitialized: true });
         break;
       case 'SIGNED_OUT':
         setUser(null);
         setSession(null);
+        useAuthStore.setState({ isInitialized: true });
         break;
       case 'USER_UPDATED':
         setUser(session?.user ?? null);
+        useAuthStore.setState({ isInitialized: true });
         break;
     }
   });
