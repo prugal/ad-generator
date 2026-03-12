@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 
 interface PricingCardProps {
+    planId: string; // Add planId
     name: string;
     price: string;
     priceNote?: string;
@@ -11,10 +11,12 @@ interface PricingCardProps {
     features: string[];
     recommended?: boolean;
     ctaText?: string;
-    ctaHref?: string;
+    onClick: (planId: string) => void; // Add onClick handler
+    isLoading?: boolean; // Add isLoading state
 }
 
 export default function PricingCard({
+    planId,
     name,
     price,
     priceNote,
@@ -22,7 +24,8 @@ export default function PricingCard({
     features,
     recommended = false,
     ctaText = 'Выбрать тариф',
-    ctaHref = '/generator',
+    onClick,
+    isLoading = false,
 }: PricingCardProps) {
     return (
         <div
@@ -80,15 +83,19 @@ export default function PricingCard({
                     ))}
                 </ul>
 
-                <Link
-                    href={ctaHref}
-                    className={`block w-full text-center py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 ${recommended
+                <button
+                    onClick={() => onClick(planId)}
+                    disabled={isLoading}
+                    className={`block w-full text-center py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                        recommended
                             ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:from-blue-500 hover:to-indigo-500'
                             : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600'
-                        }`}
+                    } ${
+                        isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                 >
-                    {ctaText}
-                </Link>
+                    {isLoading ? 'Загрузка...' : ctaText}
+                </button>
             </div>
         </div>
     );

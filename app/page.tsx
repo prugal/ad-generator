@@ -1,11 +1,17 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PricingCard from '../components/PricingCard';
 import { OrganizationSchema, WebSiteSchema, FAQSchema, ServiceSchema } from '../components/SchemaOrg';
+import { useAuth } from '@/hooks/useAuth'; // Assuming you have a useAuth hook
 
+// Metadata can not be used in a client component. 
+// We can move it to a layout or a higher-level server component if needed.
+/*
 export const metadata: Metadata = {
   title: 'AI Генератор Объявлений для Авито и Юла | Нейросеть для продающих описаний — ProfitText.AI',
   description:
@@ -41,6 +47,7 @@ export const metadata: Metadata = {
     canonical: 'https://profit-text.ru',
   },
 };
+*/
 
 const faqData = [
   {
@@ -116,6 +123,51 @@ const stats = [
 ];
 
 export default function HomePage() {
+  const { user, session } = useAuth();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handlePurchase = async (planId: string) => {
+    if (!user) {
+        // Or redirect to login
+        setError('Пожалуйста, войдите в систему, чтобы совершить покупку.');
+        // You might want to show a login modal here
+        return;
+    }
+
+    setLoadingPlan(planId);
+    setError(null);
+
+    try {
+        const response = await fetch('/api/payment/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                planId, 
+                userId: user.id,
+                email: user.email 
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Не удалось создать платеж.');
+        }
+
+        // Redirect to Robokassa
+        window.location.href = data.paymentUrl;
+
+    } catch (err: any) {
+        console.error('Purchase error:', err);
+        setError(err.message || 'Произошла неизвестная ошибка.');
+    } finally {
+        setLoadingPlan(null);
+    }
+  };
+
   return (
     <>
       <OrganizationSchema />
@@ -316,6 +368,7 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               <PricingCard
+                planId="start"
                 name="Старт"
                 price="99 ₽"
                 credits="15 кредитов"
@@ -327,8 +380,11 @@ export default function HomePage() {
                   'Загрузка фото',
                 ]}
                 ctaText="Купить 15 кредитов"
+                onClick={handlePurchase}
+                isLoading={loadingPlan === 'start'}
               />
               <PricingCard
+                planId="pro"
                 name="Профи"
                 price="390 ₽"
                 priceNote="/ экономия 35%"
@@ -343,8 +399,11 @@ export default function HomePage() {
                   'Приоритетная генерация',
                 ]}
                 ctaText="Купить 60 кредитов"
+                onClick={handlePurchase}
+                isLoading={loadingPlan === 'pro'}
               />
               <PricingCard
+                planId="business"
                 name="Бизнес"
                 price="990 ₽"
                 priceNote="/ экономия 45%"
@@ -359,6 +418,8 @@ export default function HomePage() {
                   'Email-поддержка',
                 ]}
                 ctaText="Купить 200 кредитов"
+                onClick={handlePurchase}
+                isLoading={loadingPlan === 'business'}
               />
             </div>
 
