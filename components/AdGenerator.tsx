@@ -723,34 +723,42 @@ export default function AdGenerator() {
               </div>
             )}
 
-            {/* Block 3: Action Button */}
-            <button
-              onClick={handleGenerateClick}
-              disabled={state.isLoading || balance < 1}
-              className={`
-                w-full py-4 px-6 rounded-xl font-bold text-white text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all
-                flex items-center justify-center gap-2 relative overflow-hidden group
-                ${state.isLoading || balance < 1
-                  ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed opacity-80'
-                  : 'bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 dark:from-primary-500 dark:to-indigo-500'
-                }
-              `}
-            >
-              {state.isLoading ? (
-                <>
-                  <svg suppressHydrationWarning className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle suppressHydrationWarning className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path suppressHydrationWarning className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Думаю...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
-                  {balance < 1 ? 'Недостаточно кредитов' : 'Сгенерировать с AI'}
-                </>
-              )}
-            </button>
+            {/* Block 3: Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleGenerateClick}
+                disabled={state.isLoading || balance < 1}
+                className={`
+                  w-full py-4 px-6 rounded-xl font-bold text-white text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all
+                  flex items-center justify-center gap-2 relative overflow-hidden group
+                  ${state.isLoading || balance < 1
+                    ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed opacity-80'
+                    : 'bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 dark:from-primary-500 dark:to-indigo-500'
+                  }
+                `}
+              >
+                {state.isLoading ? (
+                  <>
+                    <svg suppressHydrationWarning className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle suppressHydrationWarning className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path suppressHydrationWarning className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Думаю...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
+                    {balance < 1 ? 'Недостаточно кредитов' : 'Сгенерировать с AI'}
+                  </>
+                )}
+              </button>
+              <Link
+                href="/#pricing"
+                className="w-full sm:w-auto flex-shrink-0 py-4 px-6 rounded-xl font-bold text-white text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
+              >
+                Купить кредиты
+              </Link>
+            </div>
           </div>
         </div>
 
