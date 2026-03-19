@@ -35,18 +35,32 @@ function md5(data: string): string {
 /**
  * Generate payment URL for redirecting user to Robokassa
  * Signature format: MerchantLogin:OutSum:InvId:Password1:Shp_credits=X:Shp_userId=Y
+ * 
+ * IMPORTANT: All Shp_ parameters must be included in the signature in sorted order
  */
 export function generatePaymentUrl(params: PaymentParams): string {
     const config = getConfig();
     const { outSum, invId, description, email, userId, credits } = params;
 
-    // Custom params (Shp_ prefix, sorted alphabetically)
-    const shpCredits = credits ? `Shp_credits=${credits}` : '';
-    const shpUserId = userId ? `Shp_userId=${userId}` : '';
-    const customParams = [shpCredits, shpUserId].filter(Boolean).sort().join(':');
+    // Build Shp_ params object and sort alphabetically by key
+    const shpParams: Record<string, string> = {};
+    if (credits) shpParams['Shp_credits'] = credits.toString();
+    if (userId) shpParams['Shp_userId'] = userId;
 
-    // Signature: MerchantLogin:OutSum:InvId:Password1[:Shp_params]
-    const signatureBase = `${config.merchantLogin}:${outSum}:${invId}:${config.password1}${customParams ? ':' + customParams : ''}`;
+    // Sort Shp_ params alphabetically and format as "key=value"
+    const sortedShpEntries = Object.entries(shpParams)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, val]) => `${key}=${val}`);
+
+    // Signature: MerchantLogin:OutSum:InvId:Password1[:Shp_key=value:...]
+    const signatureBase = [
+        config.merchantLogin,
+        outSum,
+        invId,
+        config.password1,
+        ...sortedShpEntries
+    ].join(':');
+
     const signatureValue = md5(signatureBase);
 
     // Build URL
@@ -75,7 +89,9 @@ export function generatePaymentUrl(params: PaymentParams): string {
 
 /**
  * Verify signature from Robokassa ResultURL callback
- * Signature format: OutSum:InvId:Password2:Shp_params
+ * Signature format: OutSum:InvId:Password2:Shp_key=value:Shp_key2=value2
+ * 
+ * IMPORTANT: All Shp_ parameters must be included in the signature in sorted order
  */
 export function verifyResultSignature(
     outSum: string,
@@ -85,22 +101,33 @@ export function verifyResultSignature(
 ): boolean {
     const config = getConfig();
 
-    // Sort shp_ params alphabetically
+    // Sort Shp_ params alphabetically and format as "key=value"
     const sortedShpEntries = Object.entries(shpParams)
         .filter(([key]) => key.toLowerCase().startsWith('shp_'))
         .sort(([a], [b]) => a.localeCompare(b))
-        .map(([key, val]) => `${key}=${val}`)
-        .join(':');
+        .map(([key, val]) => `${key}=${val}`);
 
-    const signatureBase = `${outSum}:${invId}:${config.password2}${sortedShpEntries ? ':' + sortedShpEntries : ''}`;
+    // Signature: OutSum:InvId:Password2:Shp_key=value:...
+    const signatureBase = [
+        outSum,
+        invId,
+        config.password2,
+        ...sortedShpEntries
+    ].join(':');
+
     const expectedSignature = md5(signatureBase);
+
+    console.log(`[Robokassa Verify Result] Signature base: ${signatureBase}`);
+    console.log(`[Robokassa Verify Result] Expected: ${expectedSignature}, Received: ${signatureValue}`);
 
     return expectedSignature.toUpperCase() === signatureValue.toUpperCase();
 }
 
 /**
  * Verify signature for SuccessURL
- * Signature format: OutSum:InvId:Password1:Shp_params
+ * Signature format: OutSum:InvId:Password1:Shp_key=value:Shp_key2=value2
+ * 
+ * IMPORTANT: All Shp_ parameters must be included in the signature in sorted order
  */
 export function verifySuccessSignature(
     outSum: string,
@@ -110,14 +137,24 @@ export function verifySuccessSignature(
 ): boolean {
     const config = getConfig();
 
+    // Sort Shp_ params alphabetically and format as "key=value"
     const sortedShpEntries = Object.entries(shpParams)
         .filter(([key]) => key.toLowerCase().startsWith('shp_'))
         .sort(([a], [b]) => a.localeCompare(b))
-        .map(([key, val]) => `${key}=${val}`)
-        .join(':');
+        .map(([key, val]) => `${key}=${val}`);
 
-    const signatureBase = `${outSum}:${invId}:${config.password1}${sortedShpEntries ? ':' + sortedShpEntries : ''}`;
+    // Signature: OutSum:InvId:Password1:Shp_key=value:...
+    const signatureBase = [
+        outSum,
+        invId,
+        config.password1,
+        ...sortedShpEntries
+    ].join(':');
+
     const expectedSignature = md5(signatureBase);
+
+    console.log(`[Robokassa Verify Success] Signature base: ${signatureBase}`);
+    console.log(`[Robokassa Verify Success] Expected: ${expectedSignature}, Received: ${signatureValue}`);
 
     return expectedSignature.toUpperCase() === signatureValue.toUpperCase();
 }
