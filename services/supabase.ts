@@ -7,4 +7,12 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_A
   console.warn('⚠️ Missing Supabase environment variables. Using placeholder client. API calls will fail.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+        cookieOptions: {
+            name: 'sb-auth-token', // Follow Supabase convention
+            sameSite: 'none',
+            secure: true,
+        },
+    },
+});
