@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
-import type { Metadata } from 'next';
+import { useState } from 'react';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PricingCard from '../components/PricingCard';
+import Modal from '../components/Modal';
+import LoginModalContent from '../components/LoginModalContent';
 import { OrganizationSchema, WebSiteSchema, FAQSchema, ServiceSchema } from '../components/SchemaOrg';
 import { useAuth } from '@/hooks/useAuth'; // Assuming you have a useAuth hook
 
@@ -123,48 +124,47 @@ const stats = [
 ];
 
 export default function HomePage() {
-  const { user, session } = useAuth();
+  const { user } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handlePurchase = async (planId: string) => {
     if (!user) {
-        // Or redirect to login
-        setError('Пожалуйста, войдите в систему, чтобы совершить покупку.');
-        // You might want to show a login modal here
-        return;
+      setError('Пожалуйста, войдите в систему, чтобы совершить покупку.');
+      setIsLoginModalOpen(true);
+      return;
     }
-
     setLoadingPlan(planId);
     setError(null);
 
     try {
-        const response = await fetch('/api/payment/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                planId, 
-                userId: user.id,
-                email: user.email 
-            }),
-        });
+      const response = await fetch('/api/payment/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId,
+          userId: user.id,
+          email: user.email
+        }),
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(data.error || 'Не удалось создать платеж.');
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Не удалось создать платеж.');
+      }
 
-        // Redirect to Robokassa
-        window.location.href = data.paymentUrl;
+      // Redirect to Robokassa
+      window.location.href = data.paymentUrl;
 
     } catch (err: any) {
-        console.error('Purchase error:', err);
-        setError(err.message || 'Произошла неизвестная ошибка.');
+      console.error('Purchase error:', err);
+      setError(err.message || 'Произошла неизвестная ошибка.');
     } finally {
-        setLoadingPlan(null);
+      setLoadingPlan(null);
     }
   };
 
@@ -366,6 +366,12 @@ export default function HomePage() {
               </p>
             </div>
 
+            {error && (
+              <div className="max-w-3xl mx-auto mb-8 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
+                {error}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               <PricingCard
                 planId="start"
@@ -498,6 +504,10 @@ export default function HomePage() {
       </main>
 
       <Footer />
+
+      <Modal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}>
+        <LoginModalContent onClose={() => setIsLoginModalOpen(false)} />
+      </Modal>
     </>
   );
 }
