@@ -26,6 +26,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const { data, error } = await supabase.auth.getSession();
             if (error) {
                 console.error('Error getting session:', error);
+
+                if (error.message.includes('Invalid Refresh Token')) {
+                    await supabase.auth.signOut({ scope: 'local' });
+                }
+
+                setSession(null);
+                setUser(null);
                 setLoading(false);
                 return;
             }

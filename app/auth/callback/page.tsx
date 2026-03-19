@@ -14,57 +14,70 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Get the hash parameters from the URL
+        const queryParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
-        const error = hashParams.get('error');
-        const errorDescription = hashParams.get('error_description');
 
-        if (error) {
+        const queryError = queryParams.get('error');
+        const queryErrorDescription = queryParams.get('error_description');
+        const hashError = hashParams.get('error');
+        const hashErrorDescription = hashParams.get('error_description');
+
+        if (queryError || hashError) {
           setStatus('error');
-          setError(errorDescription || error || 'Authentication failed');
+          setError(queryErrorDescription || hashErrorDescription || queryError || hashError || 'Authentication failed');
           return;
         }
 
-        if (accessToken && refreshToken) {
-          // Set the session manually
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
+        const oauthCode = queryParams.get('code');
 
-          if (sessionError) {
-            throw sessionError;
+        if (oauthCode) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(oauthCode);
+          if (exchangeError) {
+            throw exchangeError;
           }
-
-          // Initialize auth state
-          await initializeAuth();
-          setStatus('success');
-
-          // Redirect to generator or saved location after a short delay
-          setTimeout(() => {
-            const redirectPath = sessionStorage.getItem('auth_redirect_path') || '/generator';
-            sessionStorage.removeItem('auth_redirect_path');
-            router.push(redirectPath);
-          }, 1500);
         } else {
-          // Check if user is already authenticated
-          const { data: { session } } = await supabase.auth.getSession();
+          const accessToken = hashParams.get('access_token');
+          const refreshToken = hashParams.get('refresh_token');
 
-          if (session) {
-            await initializeAuth();
-            setStatus('success');
-            setTimeout(() => {
-              const redirectPath = sessionStorage.getItem('auth_redirect_path') || '/generator';
-              sessionStorage.removeItem('auth_redirect_path');
-              router.push(redirectPath);
-            }, 1500);
-          } else {
-            setStatus('error');
-            setError('No authentication tokens found');
+          if (accessToken && refreshToken) {
+            const { error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+
+            if (sessionError) {
+              throw sessionError;
+            }
           }
         }
+
+        const { data: { session }, error: getSessionError } = await supabase.auth.getSession();
+
+        if (getSessionError) {
+          if (getSessionError.message.includes('Invalid Refresh Token')) {
+            await supabase.auth.signOut({ scope: 'local' });
+            setStatus('error');
+            setError('Сессия устарела. Войдите снова.');
+            return;
+          }
+
+          throw getSessionError;
+        }
+
+        if (!session) {
+          setStatus('error');
+          setError('No authentication tokens found');
+          return;
+        }
+
+        await initializeAuth();
+        setStatus('success');
+
+        setTimeout(() => {
+          const redirectPath = sessionStorage.getItem('auth_redirect_path') || '/generator';
+          sessionStorage.removeItem('auth_redirect_path');
+          router.push(redirectPath);
+        }, 1500);
       } catch (error) {
         console.error('Auth callback error:', error);
         setStatus('error');
@@ -74,7 +87,6 @@ export default function AuthCallback() {
 
     handleCallback();
   }, [router, initializeAuth]);
-
   if (status === 'processing') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
