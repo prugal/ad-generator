@@ -33,17 +33,6 @@ function md5(data: string): string {
 }
 
 /**
- * Get sorted and filtered SHP entries
- */
-function getSortedShpEntries(params: Record<string, any>): string {
-    return Object.entries(params)
-        .filter(([key, value]) => key.toLowerCase().startsWith('shp_') && value !== undefined && value !== null)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([key, val]) => `${key}=${val}`)
-        .join(':');
-}
-
-/**
  * Generate payment URL for redirecting user to Robokassa
  * Signature format: MerchantLogin:OutSum:InvId:Password1:Shp_credits=X:Shp_userId=Y
  */
@@ -51,19 +40,19 @@ export function generatePaymentUrl(params: PaymentParams): string {
     const config = getConfig();
     const { outSum, invId, description, email, userId, credits } = params;
 
-    const shpParams: Record<string, any> = {
-        Shp_userId: userId,
-        Shp_credits: credits,
-    };
-
-    const customParams = getSortedShpEntries(shpParams);
+    // Custom params (Shp_ prefix, sorted alphabetically)
+    const shpCredits = credits ? `Shp_credits=${credits}` : '';
+    const shpUserId = userId ? `Shp_userId=${userId}` : '';
+    const customParams = [shpCredits, shpUserId].filter(Boolean).sort().join(':');
 
     // Signature: MerchantLogin:OutSum:InvId:Password1[:Shp_params]
     const signatureBase = `${config.merchantLogin}:${outSum}:${invId}:${config.password1}${customParams ? ':' + customParams : ''}`;
     const signatureValue = md5(signatureBase);
 
     // Build URL
-    const baseUrl = 'https://auth.robokassa.ru/Merchant/Index.aspx';
+    const baseUrl = config.isTest
+        ? 'https://auth.robokassa.ru/Merchant/Index.aspx'
+        : 'https://auth.robokassa.ru/Merchant/Index.aspx';
 
     const urlParams = new URLSearchParams({
         MerchantLogin: config.merchantLogin,
@@ -77,16 +66,12 @@ export function generatePaymentUrl(params: PaymentParams): string {
         ...(config.isTest ? { IsTest: '1' } : {}),
     });
 
-    // Add custom params to URL
-    for (const [key, value] of Object.entries(shpParams)) {
-        if (value !== undefined && value !== null) {
-            urlParams.append(key, value.toString());
-        }
-    }
+    // Add custom params
+    if (credits) urlParams.append('Shp_credits', credits.toString());
+    if (userId) urlParams.append('Shp_userId', userId);
 
     return `${baseUrl}?${urlParams.toString()}`;
 }
-
 
 /**
  * Verify signature from Robokassa ResultURL callback
@@ -99,7 +84,14 @@ export function verifyResultSignature(
     shpParams: Record<string, string>
 ): boolean {
     const config = getConfig();
-    const sortedShpEntries = getSortedShpEntries(shpParams);
+
+    // Sort shp_ params alphabetically
+    const sortedShpEntries = Object.entries(shpParams)
+        .filter(([key]) => key.toLowerCase().startsWith('shp_'))
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, val]) => `${key}=${val}`)
+        .join(':');
+
     const signatureBase = `${outSum}:${invId}:${config.password2}${sortedShpEntries ? ':' + sortedShpEntries : ''}`;
     const expectedSignature = md5(signatureBase);
 
@@ -117,7 +109,13 @@ export function verifySuccessSignature(
     shpParams: Record<string, string>
 ): boolean {
     const config = getConfig();
-    const sortedShpEntries = getSortedShpEntries(shpParams);
+
+    const sortedShpEntries = Object.entries(shpParams)
+        .filter(([key]) => key.toLowerCase().startsWith('shp_'))
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, val]) => `${key}=${val}`)
+        .join(':');
+
     const signatureBase = `${outSum}:${invId}:${config.password1}${sortedShpEntries ? ':' + sortedShpEntries : ''}`;
     const expectedSignature = md5(signatureBase);
 
