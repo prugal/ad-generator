@@ -95,8 +95,25 @@ export const useAuthStore = create<AuthState>()(
             isInitialized: true
           });
         } catch (error) {
+          const isInvalidRefreshToken =
+            error instanceof Error && error.message.includes('Invalid Refresh Token');
+
+          if (isInvalidRefreshToken && typeof window !== 'undefined') {
+            try {
+              localStorage.removeItem('auth-storage');
+            } catch (storageError) {
+              console.error('Failed to clear auth storage:', storageError);
+            }
+          }
+
           set({
-            error: error instanceof Error ? error.message : 'Failed to initialize auth',
+            user: null,
+            session: null,
+            error: isInvalidRefreshToken
+              ? 'Сессия истекла. Войдите снова.'
+              : error instanceof Error
+                ? error.message
+                : 'Failed to initialize auth',
             isLoading: false,
             isInitialized: true
           });
