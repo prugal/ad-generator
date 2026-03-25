@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generatePaymentUrl } from '@/services/robokassaService';
+import { generatePaymentForm } from '@/services/robokassaService';
 import { supabaseAdmin } from '@/services/supabaseAdmin';
 
 // Pricing plans
@@ -52,18 +52,19 @@ export async function POST(request: Request) {
             );
         }
 
-        // Generate Robokassa payment URL
-        const paymentUrl = generatePaymentUrl({
+        // Generate Robokassa payment form data (POST)
+        const paymentForm = generatePaymentForm({
             outSum: plan.price,
             invId,
             description: `ProfitText.AI — ${plan.name}`,
+            receiptItemName: `Пакет кредитов: ${plan.name}`,
             email,
             userId,
             credits: plan.credits,
         });
 
         return NextResponse.json({
-            paymentUrl,
+            paymentForm,
             invId,
             plan: plan.name,
             amount: plan.price,
