@@ -15,7 +15,27 @@ export interface AuthResponse {
 export const authService = {
   async signInWithGoogle(): Promise<AuthResponse> {
     try {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const rawEnvSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+      const browserOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+
+      let siteUrl = browserOrigin;
+
+      if (rawEnvSiteUrl) {
+        try {
+          const envUrl = new URL(rawEnvSiteUrl);
+          const isEnvLocalhost = envUrl.hostname === 'localhost' || envUrl.hostname === '127.0.0.1';
+          const isBrowserLocalhost = typeof window !== 'undefined'
+            ? window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            : true;
+
+          siteUrl = isEnvLocalhost && !isBrowserLocalhost
+            ? browserOrigin
+            : envUrl.origin;
+        } catch {
+          siteUrl = browserOrigin;
+        }
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
