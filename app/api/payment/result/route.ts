@@ -1,6 +1,14 @@
-import { NextResponse } from 'next/server';
 import { verifyResultSignature } from '@/services/robokassaService';
-import { supabase } from '@/services/supabase';
+import { supabaseAdmin } from '@/services/supabaseAdmin';
+
+function isNoRowsError(error: unknown): boolean {
+    return (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code?: string }).code === 'PGRST116'
+    );
+}
 
 /**
  * Robokassa ResultURL handler
@@ -42,11 +50,16 @@ export async function POST(request: Request) {
         }
 
         // Check if payment intent exists and get current status
-        const { data: existingIntent, error: fetchError } = await supabase
+        const { data: existingIntent, error: fetchError } = await supabaseAdmin
             .from('payment_intents')
             .select('status, user_id, credits')
             .eq('inv_id', parseInt(invId, 10))
             .single();
+
+        if (fetchError && !isNoRowsError(fetchError)) {
+            console.error(`[Robokassa ResultURL] Failed to fetch payment intent for InvId=${invId}:`, fetchError);
+            return new Response('Internal Server Error', { status: 500 });
+        }
 
         // If already completed, return OK immediately (idempotency)
         if (existingIntent?.status === 'completed') {
@@ -60,7 +73,7 @@ export async function POST(request: Request) {
         // If intent doesn't exist, create it (edge case: callback before create)
         if (!existingIntent) {
             console.log(`[Robokassa ResultURL] Creating missing intent for InvId=${invId}`);
-            await supabase
+            const { error: insertError } = await supabaseAdmin
                 .from('payment_intents')
                 .insert({
                     inv_id: parseInt(invId, 10),
@@ -70,15 +83,25 @@ export async function POST(request: Request) {
                     amount: parseFloat(outSum),
                     status: 'pending',
                 });
+
+            if (insertError) {
+                console.error(`[Robokassa ResultURL] Failed to create missing intent for InvId=${invId}:`, insertError);
+                return new Response('Internal Server Error', { status: 500 });
+            }
         }
 
         // Atomic update: only transition from 'pending' to 'completed'
-        const { data: updateResult, error: updateError } = await supabase
+        const { data: updateResult, error: updateError } = await supabaseAdmin
             .from('payment_intents')
             .update({ status: 'completed', completed_at: new Date().toISOString() })
             .eq('inv_id', parseInt(invId, 10))
             .eq('status', 'pending')
             .select();
+
+        if (updateError) {
+            console.error(`[Robokassa ResultURL] Failed to update payment intent for InvId=${invId}:`, updateError);
+            return new Response('Internal Server Error', { status: 500 });
+        }
 
         // If no rows updated, it means another concurrent request already processed it
         if (!updateResult || updateResult.length === 0) {
@@ -90,7 +113,7 @@ export async function POST(request: Request) {
         }
 
         // Add credits to user account (RPC has built-in idempotency check via reference_id)
-        const { data, error } = await supabase.rpc('update_user_credits', {
+        const { data, error } = await supabaseAdmin.rpc('update_user_credits', {
             p_user_id: userId,
             p_amount: credits,
             p_type: 'purchase',
@@ -150,11 +173,16 @@ export async function GET(request: Request) {
     }
 
     // Check if payment intent exists and get current status
-    const { data: existingIntent } = await supabase
+    const { data: existingIntent, error: fetchError } = await supabaseAdmin
         .from('payment_intents')
         .select('status')
         .eq('inv_id', parseInt(invId, 10))
         .single();
+
+    if (fetchError && !isNoRowsError(fetchError)) {
+        console.error(`[Robokassa ResultURL GET] Failed to fetch payment intent for InvId=${invId}:`, fetchError);
+        return new Response('Internal Server Error', { status: 500 });
+    }
 
     // If already completed, return OK immediately (idempotency)
     if (existingIntent?.status === 'completed') {
@@ -167,7 +195,7 @@ export async function GET(request: Request) {
 
     // If intent doesn't exist, create it
     if (!existingIntent) {
-        await supabase
+        const { error: insertError } = await supabaseAdmin
             .from('payment_intents')
             .insert({
                 inv_id: parseInt(invId, 10),
@@ -177,15 +205,25 @@ export async function GET(request: Request) {
                 amount: parseFloat(outSum),
                 status: 'pending',
             });
+
+        if (insertError) {
+            console.error(`[Robokassa ResultURL GET] Failed to create missing intent for InvId=${invId}:`, insertError);
+            return new Response('Internal Server Error', { status: 500 });
+        }
     }
 
     // Atomic update: only transition from 'pending' to 'completed'
-    const { data: updateResult } = await supabase
+    const { data: updateResult, error: updateError } = await supabaseAdmin
         .from('payment_intents')
         .update({ status: 'completed', completed_at: new Date().toISOString() })
         .eq('inv_id', parseInt(invId, 10))
         .eq('status', 'pending')
         .select();
+
+    if (updateError) {
+        console.error(`[Robokassa ResultURL GET] Failed to update payment intent for InvId=${invId}:`, updateError);
+        return new Response('Internal Server Error', { status: 500 });
+    }
 
     // If no rows updated, concurrent request already processed it
     if (!updateResult || updateResult.length === 0) {
@@ -197,7 +235,7 @@ export async function GET(request: Request) {
     }
 
     // Add credits (RPC has built-in idempotency check)
-    await supabase.rpc('update_user_credits', {
+    await supabaseAdmin.rpc('update_user_credits', {
         p_user_id: userId,
         p_amount: credits,
         p_type: 'purchase',
