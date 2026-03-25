@@ -157,8 +157,27 @@ export default function HomePage() {
         throw new Error(data.error || 'Не удалось создать платеж.');
       }
 
-      // Redirect to Robokassa
-      window.location.href = data.paymentUrl;
+      // Redirect to Robokassa via POST (required for fiscal Receipt payload)
+      const paymentForm = data.paymentForm as { actionUrl: string; fields: Record<string, string> } | undefined;
+      if (!paymentForm?.actionUrl || !paymentForm?.fields) {
+        throw new Error('Некорректные данные платежной формы.');
+      }
+
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = paymentForm.actionUrl;
+      form.style.display = 'none';
+
+      Object.entries(paymentForm.fields).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
 
     } catch (err: any) {
       console.error('Purchase error:', err);
