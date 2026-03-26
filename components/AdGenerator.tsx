@@ -13,6 +13,8 @@ import { ImageUpload } from './ImageUpload';
 import { RulesModal } from './RulesModal';
 import { generateAd, optimizeAdWithKeywords } from '../services/geminiService';
 import AuthButton from './AuthButton';
+import LoginModalContent from './LoginModalContent';
+import Modal from './Modal';
 import { useCreditStore } from '@/services/creditStore';
 import { creditService } from '@/services/creditService';
 import { useAuthStore } from '@/services/authStore';
@@ -38,6 +40,7 @@ export default function AdGenerator() {
 
   const [showRules, setShowRules] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   // Initialize state
   const [state, setState] = useState<AppState>({
@@ -621,10 +624,7 @@ export default function AdGenerator() {
             </button>
             {!isInitialized ? (
               <div className="h-9 w-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />
-            ) : (
-              <AuthButton />
-            )}
-            {user && (
+            ) : user ? (
               <div className="flex items-center space-x-3 text-sm font-medium">
                 {(user.user_metadata?.full_name || user.email) && (
                   <span className="hidden sm:inline-block text-gray-600 dark:text-gray-300">
@@ -638,6 +638,18 @@ export default function AdGenerator() {
                   </span>
                 </div>
               </div>
+            ) : (
+              <button
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('auth_redirect_path', window.location.pathname);
+                  }
+                  setIsLoginModalOpen(true);
+                }}
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                Войти
+              </button>
             )}
           </div>
         </div>
@@ -955,6 +967,10 @@ export default function AdGenerator() {
         )}
 
       </div>
+
+      <Modal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}>
+        <LoginModalContent onClose={() => setIsLoginModalOpen(false)} />
+      </Modal>
     </div>
   );
 }
