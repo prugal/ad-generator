@@ -8,6 +8,21 @@ interface PolzaChatResponse {
   }>;
 }
 
+interface PolzaProviderSelection {
+  order?: string[];
+  only?: string[];
+  ignore?: string[];
+  sort?: 'price' | 'latency' | 'throughput';
+  max_price?: {
+    prompt?: number;
+    completion?: number;
+    image?: number;
+    audio?: number;
+    request?: number;
+  };
+  allow_fallbacks?: boolean;
+}
+
 const DEFAULT_POLZA_BASE_URL = 'https://api.polza.ai/v1';
 
 export class PolzaProvider implements LlmProvider {
@@ -26,6 +41,12 @@ export class PolzaProvider implements LlmProvider {
     const baseUrl = process.env.POLZA_API_BASE_URL || DEFAULT_POLZA_BASE_URL;
     const model = request.modelId || process.env.POLZA_MODEL_ID || 'gpt-4o-mini';
 
+    // Автоматический выбор провайдера (по умолчанию)
+    // Polza.ai сам выбирает оптимального провайдера по цене, доступности и скорости
+    const providerSelection: PolzaProviderSelection = {
+      allow_fallbacks: true,
+    };
+
     const payload = {
       model,
       temperature: request.temperature ?? 0.7,
@@ -38,6 +59,8 @@ export class PolzaProvider implements LlmProvider {
           content: `${request.prompt}\n\nReturn valid JSON only.`,
         },
       ],
+      // @ts-ignore - расширенный параметр Polza.ai для выбора провайдера
+      provider: providerSelection,
     };
 
     const response = await fetch(`${baseUrl}/chat/completions`, {
