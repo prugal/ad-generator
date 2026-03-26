@@ -51,8 +51,14 @@ export async function POST(req: Request) {
     if (llmProvider) {
       const provider = getProviderByName(llmProvider as LlmProviderName);
       if (provider) {
+        // Для Polza.ai добавляем явную инструкцию по формату JSON в промпт
+        const isPolza = llmProvider === 'polza';
+        const formatInstruction = isPolza
+          ? '\n\nIMPORTANT: Return ONLY valid JSON in this exact format:\n{"rewrittenAd": "your ad text here", "keywords": ["keyword1", "keyword2"]}\nDo NOT wrap in markdown code blocks. Do NOT add any other text.'
+          : '';
+
         response = await provider.generateJson({
-          prompt,
+          prompt: `${prompt}${formatInstruction}`,
           modelId,
           temperature: 0.7,
           responseSchema: {
@@ -99,7 +105,17 @@ export async function POST(req: Request) {
     }
 
     if (response.text) {
-      const result = JSON.parse(response.text);
+      let result = JSON.parse(response.text);
+
+      // Polza.ai может возвращать ответ в другом формате
+      // Конвертируем в стандартный формат { rewrittenAd, keywords }
+      if (result.ad && typeof result.ad === 'object') {
+        result = {
+          rewrittenAd: result.ad.body || result.ad.text || result.rewrittenAd || '',
+          keywords: result.keywords || result.ad.keywords || []
+        };
+      }
+
       return NextResponse.json({
         adText: result.rewrittenAd,
         keywords: result.keywords || [],
@@ -110,7 +126,7 @@ export async function POST(req: Request) {
     }
   } catch (error: unknown) {
     const err = error as { status?: number; message?: string; stack?: string };
-    console.error("Gemini Optimization Error:", error);
+    console.error("Optimization Error:", error);
 
     await logError(context, 'API_ERROR', err, { message: err.message });
 
