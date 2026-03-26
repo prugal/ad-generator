@@ -3,6 +3,8 @@ export type CategoryId = 'electronics' | 'auto' | 'services' | 'clothing';
 
 export type Tone = 'aggressive' | 'polite' | 'brief' | 'restrained' | 'natural';
 
+export type LlmProvider = 'gemini' | 'polza';
+
 export interface ElectronicsData {
   model: string;
   specs: string;
@@ -42,6 +44,7 @@ export type FormData = ElectronicsData | AutoData | ServicesData | ClothingData;
 export interface AppState {
   category: CategoryId;
   tone: Tone;
+  llmProvider: LlmProvider;
   formData: {
     electronics: ElectronicsData;
     auto: AutoData;

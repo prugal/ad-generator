@@ -1,9 +1,10 @@
-import { CategoryId, Tone, FormData } from "../types";
+import { CategoryId, Tone, FormData, LlmProvider } from "../types";
 
 export const generateAd = async (
   category: CategoryId,
   tone: Tone,
-  data: FormData
+  data: FormData,
+  llmProvider?: LlmProvider
 ): Promise<{ adText: string; smartTip: string }> => {
   try {
     const response = await fetch('/api/generate', {
@@ -11,7 +12,7 @@ export const generateAd = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ category, tone, data }),
+      body: JSON.stringify({ category, tone, data, llmProvider }),
     });
 
     if (!response.ok) {
@@ -28,7 +29,7 @@ export const generateAd = async (
     console.error("Generate Ad API Error:", error);
     const err = error as Error;
     if (err.name === 'TypeError' && err.message === 'fetch failed') {
-        throw new Error("Ошибка сети: не удалось подключиться к серверу. Проверьте соединение.");
+      throw new Error("Ошибка сети: не удалось подключиться к серверу. Проверьте соединение.");
     }
     throw error; // Re-throw to be handled by the UI
   }
@@ -38,7 +39,8 @@ export const optimizeAdWithKeywords = async (
   currentText: string,
   category: CategoryId,
   data: FormData,
-  modelId?: string
+  modelId?: string,
+  llmProvider?: LlmProvider
 ): Promise<{ adText: string; keywords: string[] }> => {
   try {
     const response = await fetch('/api/optimize', {
@@ -46,7 +48,7 @@ export const optimizeAdWithKeywords = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ currentText, category, data, modelId }),
+      body: JSON.stringify({ currentText, category, data, modelId, llmProvider }),
     });
 
     if (!response.ok) {
