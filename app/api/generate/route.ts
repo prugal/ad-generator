@@ -45,10 +45,16 @@ export async function POST(req: Request) {
     if (llmProvider) {
       const provider = getProviderByName(llmProvider as LlmProviderName);
       if (provider) {
+        // Для Polza.ai добавляем явную инструкцию по формату JSON в промпт
+        const isPolza = llmProvider === 'polza';
+        const formatInstruction = isPolza
+          ? '\n\nIMPORTANT: Return ONLY valid JSON in this exact format:\n{"adText": "your ad text here", "smartTip": "your tip here"}\nDo NOT wrap in markdown code blocks. Do NOT add any other text.'
+          : '';
+
         response = await provider.generateJson({
           prompt: imageInput
-            ? `${promptText}\n\n[System Note: An image is provided. Analyze it to add specific visual details to the description.]`
-            : promptText,
+            ? `${promptText}\n\n[System Note: An image is provided. Analyze it to add specific visual details to the description.]${formatInstruction}`
+            : `${promptText}${formatInstruction}`,
           image: imageInput,
           systemInstruction: getSystemInstruction(),
           temperature: 0.8,
@@ -99,7 +105,20 @@ export async function POST(req: Request) {
     }
 
     if (response.text) {
-      const result = JSON.parse(response.text);
+      let result = JSON.parse(response.text);
+
+      // Polza.ai может возвращать ответ в формате { ad: { title, body, smart_tip } }
+      // Конвертируем в стандартный формат { adText, smartTip }
+      if (result.ad && typeof result.ad === 'object') {
+        const adBody = result.ad.body || result.ad.text || '';
+        const adTitle = result.ad.title || '';
+        const adTip = result.ad.smart_tip || result.ad.smartTip || result.smartTip || '';
+
+        result = {
+          adText: adTitle && adBody ? `${adTitle}\n\n${adBody}` : adBody,
+          smartTip: adTip
+        };
+      }
 
       // Save to Supabase (non-blocking) - use admin client to bypass RLS
       const dataToSave = { ...data };
