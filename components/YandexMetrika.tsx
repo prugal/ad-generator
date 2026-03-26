@@ -1,14 +1,11 @@
 "use client";
 
 import Script from "next/script";
-import { useYandexMetrika } from "@/hooks/useYandexMetrika";
+import { YandexMetrikaProvider } from "@/hooks/useYandexMetrika";
 
 export default function YandexMetrika() {
-  // Подключаем авто-трекинг переходов между страницами
-  useYandexMetrika();
-
   return (
-    <>
+    <YandexMetrikaProvider>
       <Script id="yandex-metrika" strategy="afterInteractive">
         {`
           (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -32,6 +29,6 @@ export default function YandexMetrika() {
           <img src="https://mc.yandex.ru/watch/108250247" style={{ position: 'absolute', left: '-9999px' }} alt="" />
         </div>
       </noscript>
-    </>
+    </YandexMetrikaProvider>
   );
 }
