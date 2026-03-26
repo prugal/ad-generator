@@ -10,6 +10,16 @@ interface ProviderSelectorProps {
 }
 
 export function ProviderSelector({ selectedProvider, onChange }: ProviderSelectorProps) {
+  // Скрываем в production (на проде или если явно указано)
+  const isProduction = process.env.NEXT_PUBLIC_APP_ENV === 'production';
+
+  // Отладка: раскомментируйте для проверки значения переменной
+  // console.log('ProviderSelector - NEXT_PUBLIC_APP_ENV:', process.env.NEXT_PUBLIC_APP_ENV, 'isProduction:', isProduction);
+
+  if (isProduction) {
+    return null;
+  }
+
   return (
     <div className="flex items-center gap-3 pt-2">
       <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
@@ -33,8 +43,8 @@ export function ProviderSelector({ selectedProvider, onChange }: ProviderSelecto
         </div>
       </div>
       <div className="text-xs text-gray-500 dark:text-gray-400">
-        {selectedProvider === 'gemini' 
-          ? '🆓 Бесплатный тариф' 
+        {selectedProvider === 'gemini'
+          ? '🆓 Бесплатный тариф'
           : '💰 Платный API'}
       </div>
     </div>
