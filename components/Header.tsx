@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '../services/authStore';
-import AuthButton from './AuthButton';
 import ThemeToggle from './ThemeToggle';
 import Modal from './Modal';
 import LoginModalContent from './LoginModalContent';

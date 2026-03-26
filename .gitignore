@@ -26,3 +26,4 @@ dist-ssr
 *.sln
 *.sw?
 .next
+IMPLEMENTATION_PLAN.md

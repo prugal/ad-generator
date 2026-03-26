@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { User, Session } from '@supabase/supabase-js';
-import { authService } from './authService';
+import { authService, type OAuthProvider } from './authService';
 
 interface AuthState {
   user: User | null;
@@ -17,7 +17,10 @@ interface AuthState {
   setError: (error: string | null) => void;
 
   // Auth actions
+  signInWithOAuth: (provider: OAuthProvider) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithYandex: () => Promise<void>;
+  sendMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   initializeAuth: () => Promise<void>;
   clearError: () => void;
@@ -38,10 +41,10 @@ export const useAuthStore = create<AuthState>()(
       setError: (error) => set({ error }),
       clearError: () => set({ error: null }),
 
-      signInWithGoogle: async () => {
+      signInWithOAuth: async (provider) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await authService.signInWithGoogle();
+          const response = await authService.signInWithOAuth(provider);
 
           if (response.error) {
             set({ error: response.error.message, isLoading: false });
@@ -52,8 +55,34 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false });
         } catch (error) {
           set({
-            error: error instanceof Error ? error.message : 'Failed to sign in with Google',
+            error: error instanceof Error ? error.message : 'Failed to sign in with OAuth provider',
             isLoading: false
+          });
+        }
+      },
+
+      signInWithGoogle: async () => {
+        await useAuthStore.getState().signInWithOAuth('google');
+      },
+
+      signInWithYandex: async () => {
+        await useAuthStore.getState().signInWithOAuth('yandex');
+      },
+
+      sendMagicLink: async (email) => {
+        set({ isLoading: true, error: null });
+        try {
+          const result = await authService.sendMagicLink(email);
+          if (result.error) {
+            set({ error: result.error.message, isLoading: false });
+            return;
+          }
+
+          set({ isLoading: false, error: null });
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : 'Failed to send magic link',
+            isLoading: false,
           });
         }
       },
