@@ -58,11 +58,13 @@ export const authService = {
       const siteUrl = buildSiteUrl();
       const supabaseProvider = provider === 'yandex' ? 'custom:yandex' : provider;
 
+      const oauthOptions: Record<string, unknown> = {
+        redirectTo: `${siteUrl}/auth/callback`,
+      };
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: supabaseProvider as never,
-        options: {
-          redirectTo: `${siteUrl}/auth/callback`,
-        },
+        options: oauthOptions,
       });
 
       if (error) {
@@ -125,7 +127,7 @@ export const authService = {
   async signOut(): Promise<{ error: AuthError | null }> {
     try {
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         return {
           error: {
