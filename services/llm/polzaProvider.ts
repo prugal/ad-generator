@@ -79,11 +79,14 @@ export class PolzaProvider implements LlmProvider {
     }
 
     const data = (await response.json()) as PolzaChatResponse;
-    const text = data.choices?.[0]?.message?.content?.trim();
+    let text = data.choices?.[0]?.message?.content?.trim();
 
     if (!text) {
       throw new Error('Polza returned empty response');
     }
+
+    // Очищаем markdown-обёрку (```json ... ```) если она есть
+    text = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
 
     return {
       text,
