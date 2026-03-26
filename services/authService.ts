@@ -12,38 +12,56 @@ export interface AuthResponse {
   error: AuthError | null;
 }
 
+export type OAuthProvider = 'google' | 'yandex';
+
+export function isOAuthProviderEnabled(provider: OAuthProvider): boolean {
+  void provider;
+  return true;
+}
+
+function buildSiteUrl(): string {
+  const rawEnvSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const browserOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+
+  if (!rawEnvSiteUrl) {
+    return browserOrigin;
+  }
+
+  try {
+    const envUrl = new URL(rawEnvSiteUrl);
+    const isEnvLocalhost = envUrl.hostname === 'localhost' || envUrl.hostname === '127.0.0.1';
+    const isBrowserLocalhost =
+      typeof window !== 'undefined'
+        ? window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        : true;
+
+    return isEnvLocalhost && !isBrowserLocalhost ? browserOrigin : envUrl.origin;
+  } catch {
+    return browserOrigin;
+  }
+}
+
 export const authService = {
-  async signInWithGoogle(): Promise<AuthResponse> {
+  async signInWithOAuth(provider: OAuthProvider): Promise<AuthResponse> {
     try {
-      const rawEnvSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-      const browserOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
-
-      let siteUrl = browserOrigin;
-
-      if (rawEnvSiteUrl) {
-        try {
-          const envUrl = new URL(rawEnvSiteUrl);
-          const isEnvLocalhost = envUrl.hostname === 'localhost' || envUrl.hostname === '127.0.0.1';
-          const isBrowserLocalhost = typeof window !== 'undefined'
-            ? window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            : true;
-
-          siteUrl = isEnvLocalhost && !isBrowserLocalhost
-            ? browserOrigin
-            : envUrl.origin;
-        } catch {
-          siteUrl = browserOrigin;
-        }
+      if (!isOAuthProviderEnabled(provider)) {
+        return {
+          user: null,
+          session: null,
+          error: {
+            message: 'OAuth-провайдер временно отключен в конфигурации приложения.',
+            code: 'oauth_provider_disabled',
+          },
+        };
       }
 
+      const siteUrl = buildSiteUrl();
+      const supabaseProvider = provider === 'yandex' ? 'custom:yandex' : provider;
+
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: supabaseProvider as never,
         options: {
           redirectTo: `${siteUrl}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
         },
       });
 
@@ -68,7 +86,37 @@ export const authService = {
         user: null,
         session: null,
         error: {
-          message: error instanceof Error ? error.message : 'Authentication failed',
+          message: error instanceof Error ? error.message : 'OAuth authentication failed',
+        },
+      };
+    }
+  },
+
+  async sendMagicLink(email: string): Promise<{ error: AuthError | null }> {
+    try {
+      const siteUrl = buildSiteUrl();
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${siteUrl}/auth/callback`,
+          shouldCreateUser: true,
+        },
+      });
+
+      if (error) {
+        return {
+          error: {
+            message: error.message,
+            code: error.name,
+          },
+        };
+      }
+
+      return { error: null };
+    } catch (error) {
+      return {
+        error: {
+          message: error instanceof Error ? error.message : 'Magic link failed',
         },
       };
     }
