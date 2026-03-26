@@ -1,36 +1,9 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI, Type, type GenerateContentParameters } from "@google/genai";
+import { Type } from '@google/genai';
 import { getDetailsString } from '../../../services/adHelpers';
 import { checkRateLimit, validateReferer, logError, type SecurityContext } from '../../../services/serverSecurity';
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-async function generateWithRetry(ai: GoogleGenAI, modelId: string, params: Omit<GenerateContentParameters, 'model'>, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await ai.models.generateContent({
-        model: modelId,
-        ...params
-      } as GenerateContentParameters);
-    } catch (error: unknown) {
-      const err = error as { status?: number; message?: string };
-      const isRetryable =
-        err.status === 503 ||
-        err.status === 429 ||
-        err.message?.includes('503') ||
-        err.message?.includes('overloaded');
-
-      if (isRetryable && i < retries - 1) {
-        const waitTime = 1000 * Math.pow(2, i); // 1s, 2s, 4s
-        console.log(`Gemini API Error ${err.status}. Retrying in ${waitTime}ms... (Attempt ${i + 1}/${retries})`);
-        await delay(waitTime);
-        continue;
-      }
-      throw error;
-    }
-  }
-  throw new Error("Failed to generate content after retries");
-}
+import { generateJsonWithFallback, getProviderByName } from '@/services/llm';
+import type { LlmProviderName } from '@/services/llm/types';
 
 export async function POST(req: Request) {
   const ip = req.headers.get('x-forwarded-for') || 'unknown';
@@ -52,23 +25,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { currentText, category, data, modelId } = await req.json();
-    const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-
-    if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
-      const err = new Error('API key configuration missing');
-      await logError(context, 'CONFIG_ERROR', err);
-      return NextResponse.json({ error: 'Configuration Error' }, { status: 500 });
-    }
-
-    const ai = new GoogleGenAI({ apiKey });
-    const selectedModelId = modelId || 'gemini-3-flash-preview';
+    const { currentText, category, data, modelId, llmProvider } = await req.json();
 
     const details = getDetailsString(category, data);
 
     const prompt = `
       Act as an expert SEO-marketer for Avito/Youla.
-      
+
       Your Goal:
       Increase the search visibility of this ad by organically integrating high-frequency keywords.
 
@@ -83,37 +46,67 @@ export async function POST(req: Request) {
       4. Return the result in JSON format.
     `;
 
-    const response = await generateWithRetry(ai, selectedModelId, {
-      contents: { role: 'user', parts: [{ text: prompt }] },
-      config: {
+    // Если указан конкретный провайдер, используем его
+    let response;
+    if (llmProvider) {
+      const provider = getProviderByName(llmProvider as LlmProviderName);
+      if (provider) {
+        response = await provider.generateJson({
+          prompt,
+          modelId,
+          temperature: 0.7,
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              rewrittenAd: {
+                type: Type.STRING,
+                description: 'The rewritten ad text. Keep Markdown formatting.',
+              },
+              keywords: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+                description: 'The list of keywords used.',
+              },
+            },
+            required: ['rewrittenAd', 'keywords'],
+          },
+        });
+      } else {
+        throw new Error(`Unknown provider: ${llmProvider}`);
+      }
+    } else {
+      // Используем fallback-механизм по умолчанию
+      response = await generateJsonWithFallback({
+        prompt,
+        modelId,
         temperature: 0.7,
-        responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
             rewrittenAd: {
               type: Type.STRING,
-              description: "The rewritten ad text. Keep Markdown formatting.",
+              description: 'The rewritten ad text. Keep Markdown formatting.',
             },
             keywords: {
               type: Type.ARRAY,
               items: { type: Type.STRING },
-              description: "The list of keywords used.",
+              description: 'The list of keywords used.',
             },
           },
-          required: ["rewrittenAd", "keywords"],
+          required: ['rewrittenAd', 'keywords'],
         },
-      }
-    });
+      });
+    }
 
     if (response.text) {
       const result = JSON.parse(response.text);
       return NextResponse.json({
         adText: result.rewrittenAd,
-        keywords: result.keywords || []
+        keywords: result.keywords || [],
+        provider: response.provider,
       });
     } else {
-      throw new Error("No text returned from Gemini");
+      throw new Error('No text returned from provider');
     }
   } catch (error: unknown) {
     const err = error as { status?: number; message?: string; stack?: string };

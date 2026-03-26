@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Smartphone, Car, Briefcase, Shirt, Sparkles, Copy, RefreshCw, CheckCircle2, TrendingUp, Tag, Share2, X, LinkIcon, AlertTriangle, Lightbulb, Info, Pencil, ChevronDown, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { CategoryId, AppState } from '../types';
+import { CategoryId, AppState, LlmProvider } from '../types';
 import { CategoryCard } from './CategoryCard';
 import { InputField } from './InputField';
 import { SelectField } from './SelectField';
@@ -16,6 +16,7 @@ import AuthButton from './AuthButton';
 import { useCreditStore } from '@/services/creditStore';
 import { creditService } from '@/services/creditService';
 import { useAuthStore } from '@/services/authStore';
+import { ProviderSelector } from './ProviderSelector';
 
 // Initial state helpers
 const initialElectronics = { model: '', specs: '', condition: 'normal' as const, kit: '', image: '', price: '' };
@@ -42,6 +43,7 @@ export default function AdGenerator() {
   const [state, setState] = useState<AppState>({
     category: 'electronics',
     tone: 'polite',
+    llmProvider: 'gemini',
     formData: {
       electronics: { ...initialElectronics },
       auto: { ...initialAuto },
@@ -128,6 +130,7 @@ export default function AdGenerator() {
           ...prev,
           category: parsed.category || 'electronics',
           tone: parsed.tone || 'polite',
+          llmProvider: parsed.llmProvider || 'gemini',
           formData: {
             electronics: { ...initialElectronics, ...parsed.formData?.electronics },
             auto: { ...initialAuto, ...parsed.formData?.auto },
@@ -157,6 +160,7 @@ export default function AdGenerator() {
         const stateToSave = {
           category: state.category,
           tone: state.tone,
+          llmProvider: state.llmProvider,
           formData: state.formData,
           generatedText: state.generatedText,
           smartTip: state.smartTip,
@@ -174,6 +178,7 @@ export default function AdGenerator() {
           const stateToSaveClean = {
             category: state.category,
             tone: state.tone,
+            llmProvider: state.llmProvider,
             formData: cleanFormData,
             generatedText: state.generatedText,
             smartTip: state.smartTip,
@@ -187,7 +192,7 @@ export default function AdGenerator() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [state.category, state.tone, state.formData, state.generatedText, state.smartTip, state.keywords]);
+  }, [state.category, state.tone, state.llmProvider, state.formData, state.generatedText, state.smartTip, state.keywords]);
 
   useEffect(() => {
     if (state.generatedText && !state.isLoading && resultRef.current) {
@@ -287,7 +292,7 @@ export default function AdGenerator() {
 
     try {
       const currentData = state.formData[state.category];
-      const { adText, smartTip } = await generateAd(state.category, state.tone, currentData);
+      const { adText, smartTip } = await generateAd(state.category, state.tone, currentData, state.llmProvider);
 
       // Списываем кредиты только после успешной генерации
       await creditService.spendCredits(cost, isRegeneration ? 'Ad Regeneration' : 'Ad Generation');
@@ -332,7 +337,8 @@ export default function AdGenerator() {
         state.generatedText,
         state.category,
         currentData,
-        optimizeModel
+        optimizeModel,
+        state.llmProvider
       );
 
       // Списываем кредиты только после успешной оптимизации
@@ -599,8 +605,8 @@ export default function AdGenerator() {
 
         <div className="flex items-center justify-between flex-wrap gap-3">
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors group">
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              На главный сайт
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            На главный сайт
           </Link>
 
           {/* Controls */}
@@ -694,24 +700,30 @@ export default function AdGenerator() {
                   }}
                 />
               </div>
-              <div className="flex items-center gap-3 pt-2">
-                <label htmlFor="model-select" className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                  Модель для SEO:
-                </label>
-                <div className="relative flex-1">
-                  <select
-                    id="model-select"
-                    value={optimizeModel}
-                    onChange={(e) => setOptimizeModel(e.target.value as 'gemini-3-flash-preview' | 'gemini-flash-latest' | 'gemini-3-pro-preview')}
-                    className="w-full appearance-none px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all pr-10"
-                  >
-                    <option value="gemini-3-flash-preview">gemini-3-flash-preview</option>
-                    <option value="gemini-flash-latest">gemini-flash-latest</option>
-                    <option value="gemini-3-pro-preview">gemini-3-pro-preview</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              {state.llmProvider === 'gemini' && (
+                <div className="flex items-center gap-3 pt-2">
+                  <label htmlFor="model-select" className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                    Модель для SEO:
+                  </label>
+                  <div className="relative flex-1">
+                    <select
+                      id="model-select"
+                      value={optimizeModel}
+                      onChange={(e) => setOptimizeModel(e.target.value as 'gemini-3-flash-preview' | 'gemini-flash-latest' | 'gemini-3-pro-preview')}
+                      className="w-full appearance-none px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all pr-10"
+                    >
+                      <option value="gemini-3-flash-preview">gemini-3-flash-preview</option>
+                      <option value="gemini-flash-latest">gemini-flash-latest</option>
+                      <option value="gemini-3-pro-preview">gemini-3-pro-preview</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
-              </div>
+              )}
+              <ProviderSelector
+                selectedProvider={state.llmProvider}
+                onChange={(provider) => setState(s => ({ ...s, llmProvider: provider }))}
+              />
             </div>
 
 
