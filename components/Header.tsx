@@ -31,8 +31,8 @@ export default function Header() {
         <header
             id="site-header"
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-lg shadow-black/5'
-                    : 'bg-transparent'
+                ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-lg shadow-black/5'
+                : 'bg-transparent'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -60,8 +60,15 @@ export default function Header() {
                                 {link.label}
                             </Link>
                         ))}
+                        {user && (
+                            <Link
+                                href="/cabinet"
+                                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                            >
+                                Личный кабинет
+                            </Link>
+                        )}
                     </nav>
-
                     {/* CTA + Auth */}
                     <div className="hidden lg:flex items-center gap-3">
                         <ThemeToggle />
@@ -129,7 +136,15 @@ export default function Header() {
                             {link.label}
                         </Link>
                     ))}
-                    <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                    {user && (
+                        <Link
+                            href="/cabinet"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
+                        >
+                            Личный кабинет
+                        </Link>
+                    )}                    <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                         <Link
                             href="/generator"
                             onClick={() => setIsMobileMenuOpen(false)}
