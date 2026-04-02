@@ -4,23 +4,16 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-function getAccessTokenFromCookies(request: Request): string | null {
-  const cookieHeader = request.headers.get('cookie') || '';
-  const match = cookieHeader.match(/sb-[^=]+-access-token=([^;]+)/);
-  if (!match) return null;
-  try {
-    const raw = decodeURIComponent(match[1]);
-    const parsed = JSON.parse(raw);
-    return parsed?.access_token ?? null;
-  } catch {
-    return null;
-  }
+function getAccessToken(request: Request): string | null {
+  const auth = request.headers.get('authorization');
+  if (!auth) return null;
+  const match = auth.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1] : null;
 }
 
 export async function GET(request: Request) {
   try {
-    const accessToken = getAccessTokenFromCookies(request);
-
+    const accessToken = getAccessToken(request);
     if (!accessToken) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -35,6 +28,7 @@ export async function GET(request: Request) {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
+      console.error('Auth error:', userError);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
