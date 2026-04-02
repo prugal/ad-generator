@@ -4,6 +4,18 @@ import { getSystemInstruction, buildPrompt } from '../../../services/adHelpers';
 import { checkRateLimit, validateReferer, logError, supabaseAdmin, type SecurityContext } from '../../../services/serverSecurity';
 import { generateJsonWithFallback, getProviderByName } from '@/services/llm';
 import type { LlmProviderName } from '@/services/llm/types';
+import { createClient } from '@supabase/supabase-js';
+
+async function getUserIdFromRequest(req: Request): Promise<string | null> {
+  const cookieHeader = req.headers.get('cookie') || '';
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Cookie: cookieHeader } },
+  });
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user?.id ?? null;
+}
 
 export async function POST(req: Request) {
   const ip = req.headers.get('x-forwarded-for') || 'unknown';
@@ -121,12 +133,14 @@ export async function POST(req: Request) {
       }
 
       // Save to Supabase (non-blocking) - use admin client to bypass RLS
+      const userId = await getUserIdFromRequest(req);
       const dataToSave = { ...data };
       if ((dataToSave as { image?: string }).image) {
         delete (dataToSave as { image?: string }).image;
       }
 
       supabaseAdmin.from('generated_ads').insert({
+        user_id: userId,
         category,
         input_data: dataToSave,
         output_text: result.adText,
