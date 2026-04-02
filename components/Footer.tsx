@@ -37,7 +37,7 @@ export default function Footer() {
                                 </svg>
                             </div>
                             <span className="text-lg font-bold text-white">
-                                ProfitText<span className="text-blue-400">.AI</span>
+                                ProfitText
                             </span>
                         </Link>
                         <p className="text-sm text-gray-400 leading-relaxed mb-6">
@@ -103,7 +103,7 @@ export default function Footer() {
                 <div className="border-t border-gray-800 pt-8">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <p className="text-xs text-gray-500">
-                            © {currentYear} ProfitText.AI — Генератор объявлений на базе ИИ. Все права защищены.
+                            © {currentYear} ProfitText — Генератор объявлений на базе ИИ. Все права защищены.
                         </p>
                         <div className="flex items-center gap-3">
                             <span className="text-xs text-gray-500">Способы оплаты:</span>
