@@ -14,6 +14,12 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]['id'];
 
+async function authHeaders(): Promise<HeadersInit> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return {};
+  return { Authorization: `Bearer ${session.access_token}` };
+}
+
 export default function CabinetPage() {
   const [activeTab, setActiveTab] = useState<TabId>('profile');
   const [isLoading, setIsLoading] = useState(true);
@@ -42,9 +48,10 @@ export default function CabinetPage() {
     setIsLoading(true);
     setApiError(null);
     try {
+      const headers = await authHeaders();
       const [profileRes, creditsRes] = await Promise.all([
-        fetch('/api/cabinet/profile'),
-        fetch('/api/cabinet/credits'),
+        fetch('/api/cabinet/profile', { headers }),
+        fetch('/api/cabinet/credits', { headers }),
       ]);
 
       if (!profileRes.ok || !creditsRes.ok) {
@@ -216,23 +223,21 @@ function GenerationsTab() {
   const limit = 10;
 
   const fetchGenerations = useCallback(
-    (offset: number) => {
+    async (offset: number) => {
       setIsLoading(true);
       setError(null);
-      fetch(`/api/cabinet/generations?limit=${limit}&offset=${offset}`)
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to fetch');
-          return res.json();
-        })
-        .then((data) => {
-          setGenerations(data.generations || []);
-          setTotal(data.total || 0);
-          setIsLoading(false);
-        })
-        .catch(() => {
-          setError('Не удалось загрузить историю генераций.');
-          setIsLoading(false);
-        });
+      try {
+        const headers = await authHeaders();
+        const res = await fetch(`/api/cabinet/generations?limit=${limit}&offset=${offset}`, { headers });
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setGenerations(data.generations || []);
+        setTotal(data.total || 0);
+      } catch {
+        setError('Не удалось загрузить историю генераций.');
+      } finally {
+        setIsLoading(false);
+      }
     },
     []
   );
@@ -310,23 +315,21 @@ function TransactionsTab() {
   const limit = 10;
 
   const fetchTransactions = useCallback(
-    (offset: number) => {
+    async (offset: number) => {
       setIsLoading(true);
       setError(null);
-      fetch(`/api/cabinet/transactions?limit=${limit}&offset=${offset}`)
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to fetch');
-          return res.json();
-        })
-        .then((data) => {
-          setTransactions(data.transactions || []);
-          setTotal(data.total || 0);
-          setIsLoading(false);
-        })
-        .catch(() => {
-          setError('Не удалось загрузить транзакции.');
-          setIsLoading(false);
-        });
+      try {
+        const headers = await authHeaders();
+        const res = await fetch(`/api/cabinet/transactions?limit=${limit}&offset=${offset}`, { headers });
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setTransactions(data.transactions || []);
+        setTotal(data.total || 0);
+      } catch {
+        setError('Не удалось загрузить транзакции.');
+      } finally {
+        setIsLoading(false);
+      }
     },
     []
   );
@@ -429,23 +432,21 @@ function PaymentsTab() {
   const limit = 10;
 
   const fetchPayments = useCallback(
-    (offset: number) => {
+    async (offset: number) => {
       setIsLoading(true);
       setError(null);
-      fetch(`/api/cabinet/payments?limit=${limit}&offset=${offset}`)
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to fetch');
-          return res.json();
-        })
-        .then((data) => {
-          setPayments(data.payments || []);
-          setTotal(data.total || 0);
-          setIsLoading(false);
-        })
-        .catch(() => {
-          setError('Не удалось загрузить платежи.');
-          setIsLoading(false);
-        });
+      try {
+        const headers = await authHeaders();
+        const res = await fetch(`/api/cabinet/payments?limit=${limit}&offset=${offset}`, { headers });
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setPayments(data.payments || []);
+        setTotal(data.total || 0);
+      } catch {
+        setError('Не удалось загрузить платежи.');
+      } finally {
+        setIsLoading(false);
+      }
     },
     []
   );
