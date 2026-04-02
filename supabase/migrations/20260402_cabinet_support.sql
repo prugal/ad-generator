@@ -78,3 +78,12 @@ INSERT INTO public.users (id, email)
 SELECT au.id, au.email
 FROM auth.users au
 WHERE NOT EXISTS (SELECT 1 FROM public.users u WHERE u.id = au.id);
+
+-- 7. Allow users to read their own generated ads
+-- The original migration revoked ALL from authenticated, so we need to grant SELECT back
+GRANT SELECT ON public.generated_ads TO authenticated;
+
+DROP POLICY IF EXISTS "Users can view own generated ads" ON public.generated_ads;
+CREATE POLICY "Users can view own generated ads" ON public.generated_ads
+FOR SELECT
+USING ((SELECT auth.uid()) = user_id);
