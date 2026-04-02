@@ -95,7 +95,6 @@ export default function Footer() {
                             <p><span className="text-gray-500">ИНН:</span> 420537607410</p>
                             <p><span className="text-gray-500">ОГРН/ОГРНИП:</span> 324420500058634</p>
                             <p><span className="text-gray-500">Email:</span> rugal.pavel@yandex.ru</p>
-                            <p><span className="text-gray-500">Телефон:</span> +7 905 915-55-59</p>
                         </div>
                     </div>
                 </div>

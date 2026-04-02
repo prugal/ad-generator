@@ -30,7 +30,6 @@ export function OrganizationSchema() {
                 logo: 'https://profit-text.ru/logo.png',
                 description: 'AI-генератор продающих объявлений для Авито, Юла и других площадок',
                 email: 'support@profit-text.ru',
-                telephone: '+7-999-123-45-67',
                 address: {
                     '@type': 'PostalAddress',
                     addressLocality: 'Москва',
@@ -38,12 +37,6 @@ export function OrganizationSchema() {
                     streetAddress: 'ул. Примерная, д. 1',
                 },
                 sameAs: ['https://t.me/profittext_ai'],
-                contactPoint: {
-                    '@type': 'ContactPoint',
-                    telephone: '+7-999-123-45-67',
-                    contactType: 'customer service',
-                    availableLanguage: 'Russian',
-                },
             }}
         />
     );
