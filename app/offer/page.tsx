@@ -120,7 +120,6 @@ export default function TermsPage() {
                                 <li><strong>Полное наименование:</strong> Ругаль Павел Николаевич</li>
                                 <li><strong>ИНН:</strong> 420537607410</li>
                                 <li><strong>ОГРН/ОГРНИП:</strong> 324420500058634</li>
-                                <li><strong>Контактный телефон:</strong> +7 905 915-55-59</li>
                                 <li><strong>Контактный e-mail:</strong> rugal.pavel@yandex.ru</li>
                             </ul>
                         </section>

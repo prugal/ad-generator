@@ -145,7 +145,6 @@ export default function RefundPage() {
                                 <strong>Email:</strong>{' '}
                                 <a href="mailto:rugal.pavel@yandex.ru" className="text-blue-600 hover:underline">rugal.pavel@yandex.ru</a>
                             </p>
-                            <p className="text-sm"><strong>Телефон:</strong> +7 905 915-55-59</p>
                             <p className="text-sm"><strong>Время работы поддержки:</strong> Пн-Пт, 10:00–19:00 (МСК)</p>
                         </section>
                     </div>

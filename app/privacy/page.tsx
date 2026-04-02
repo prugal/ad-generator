@@ -136,7 +136,6 @@ export default function PrivacyPage() {
                             </p>
                             <ul className="list-none space-y-1">
                                 <li><strong>Email:</strong> rugal.pavel@yandex.ru</li>
-                                <li><strong>Телефон:</strong> +7 905 915-55-59</li>
                             </ul>
                         </section>
                     </div>

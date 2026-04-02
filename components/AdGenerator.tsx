@@ -42,11 +42,13 @@ export default function AdGenerator() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
+  const isProduction = process.env.NEXT_PUBLIC_APP_ENV === 'production';
+
   // Initialize state
   const [state, setState] = useState<AppState>({
     category: 'electronics',
     tone: 'polite',
-    llmProvider: 'gemini',
+    llmProvider: isProduction ? 'polza' : 'gemini',
     formData: {
       electronics: { ...initialElectronics },
       auto: { ...initialAuto },
