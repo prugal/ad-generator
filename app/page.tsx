@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/useAuth'; // Assuming you have a useAuth hook
 // We can move it to a layout or a higher-level server component if needed.
 /*
 export const metadata: Metadata = {
-  title: 'AI Генератор Объявлений для Авито и Юла | Нейросеть для продающих описаний — ProfitText.AI',
+  title: 'AI Генератор Объявлений для Авито и Юла | Нейросеть для продающих описаний — ProfitText',
   description:
     'Бесплатный генератор продающих описаний для объявлений с помощью ИИ. Загрузите фото, укажите характеристики — получите готовый текст для Авито, Юла, OLX за считанные секунды. Экономьте время — продавайте быстрее!',
   keywords: [
@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     description: 'Продающие описания для Авито и Юла с помощью ИИ. Бесплатные кредиты при регистрации.',
     type: 'website',
     locale: 'ru_RU',
-    siteName: 'ProfitText.AI',
+    siteName: 'ProfitText',
     url: 'https://profit-text.ru',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Генератор Объявлений — ProfitText.AI',
+    title: 'AI Генератор Объявлений — ProfitText',
     description: 'Продавайте быстрее с умными описаниями от ИИ.',
   },
   alternates: {
@@ -319,7 +319,7 @@ export default function HomePage() {
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
                 Почему выбирают{' '}
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">ProfitText.AI</span>
+                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">ProfitText</span>
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                 Мощная нейросеть, заточенная под российские площадки объявлений

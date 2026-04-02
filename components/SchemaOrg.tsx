@@ -25,7 +25,7 @@ export function OrganizationSchema() {
         <SchemaOrg
             type="Organization"
             data={{
-                name: 'ProfitText.AI',
+                name: 'ProfitText',
                 url: 'https://profit-text.ru',
                 logo: 'https://profit-text.ru/logo.png',
                 description: 'AI-генератор продающих объявлений для Авито, Юла и других площадок',
@@ -47,7 +47,7 @@ export function WebSiteSchema() {
         <SchemaOrg
             type="WebSite"
             data={{
-                name: 'ProfitText.AI — Генератор объявлений на базе ИИ',
+                name: 'ProfitText — Генератор объявлений на базе ИИ',
                 url: 'https://profit-text.ru',
                 description: 'Создавайте продающие объявления для Авито, Юла и Drom с помощью искусственного интеллекта',
                 inLanguage: 'ru-RU',
@@ -88,7 +88,7 @@ export function ServiceSchema({ name, description, price }: { name: string; desc
                 description,
                 provider: {
                     '@type': 'Organization',
-                    name: 'ProfitText.AI',
+                    name: 'ProfitText',
                 },
                 offers: {
                     '@type': 'Offer',
