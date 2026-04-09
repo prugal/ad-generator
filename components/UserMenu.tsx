@@ -55,7 +55,7 @@ export default function UserMenu({ onLoginClick }: UserMenuProps) {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isOpen]);
 
   // Close on Escape
   useEffect(() => {
