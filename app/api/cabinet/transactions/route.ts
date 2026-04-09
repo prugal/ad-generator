@@ -44,6 +44,11 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error('Error fetching transactions:', error);
+      // Return empty result instead of 500 if there's a constraint error
+      if (error.code === '23514' || error.code === '22P02') {
+        console.warn('Constraint/validation error in transactions, returning empty array');
+        return NextResponse.json({ transactions: [], total: 0 });
+      }
       return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 });
     }
 
