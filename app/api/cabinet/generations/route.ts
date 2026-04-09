@@ -44,6 +44,11 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error('Error fetching generations:', error);
+      // Return empty result instead of 500 if there's a permission/constraint error
+      if (error.code === '42501' || error.code === '23514' || error.code === '22P02') {
+        console.warn('Permission/constraint error in generations, returning empty array');
+        return NextResponse.json({ generations: [], total: 0 });
+      }
       return NextResponse.json({ error: 'Failed to fetch generations' }, { status: 500 });
     }
 
