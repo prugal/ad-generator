@@ -6,7 +6,7 @@ import { useAuthStore } from '../services/authStore';
 import ThemeToggle from './ThemeToggle';
 import Modal from './Modal';
 import LoginModalContent from './LoginModalContent';
-import Image from 'next/image';
+import UserMenu from './UserMenu';
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -60,34 +60,12 @@ export default function Header() {
                                 {link.label}
                             </Link>
                         ))}
-                        {user && (
-                            <Link
-                                href="/cabinet"
-                                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
-                            >
-                                Личный кабинет
-                            </Link>
-                        )}
                     </nav>
+
                     {/* CTA + Auth */}
                     <div className="hidden lg:flex items-center gap-3">
                         <ThemeToggle />
-                        {user ? (
-                            <div className="flex items-center gap-3">
-                                {user.user_metadata?.avatar_url && (
-                                    <Image
-                                        src={user.user_metadata.avatar_url}
-                                        alt={user.user_metadata?.full_name || user.email || 'User'}
-                                        width={32}
-                                        height={32}
-                                        className="w-8 h-8 rounded-full"
-                                    />
-                                )}
-                                <button onClick={() => signOut()} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200">Выйти</button>
-                            </div>
-                        ) : (
-                            <button onClick={() => setIsLoginModalOpen(true)} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200">Войти</button>
-                        )}
+                        <UserMenu onLoginClick={() => setIsLoginModalOpen(true)} />
                         <Link
                             href="/generator"
                             id="header-cta"
@@ -118,7 +96,7 @@ export default function Header() {
             {/* Mobile Menu */}
             <div
                 id="mobile-menu"
-                className={`lg:hidden transition-all duration-300 overflow-hidden ${isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                className={`lg:hidden transition-all duration-300 overflow-hidden ${isMobileMenuOpen ? 'max-h-[32rem] opacity-100' : 'max-h-0 opacity-0'
                     }`}
             >
                 <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 px-4 py-4 space-y-1">
@@ -126,6 +104,56 @@ export default function Header() {
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Тема</span>
                         <ThemeToggle />
                     </div>
+
+                    {/* Mobile user section */}
+                    {user ? (
+                        <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md">
+                                    {user.user_metadata?.full_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                        {user.user_metadata?.full_name || 'Пользователь'}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                        {user.email}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="space-y-1">
+                                <Link
+                                    href="/cabinet"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
+                                >
+                                    <svg className="w-4.5 h-4.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                    </svg>
+                                    Личный кабинет
+                                </Link>
+                                <button
+                                    onClick={async () => { setIsMobileMenuOpen(false); await signOut(); }}
+                                    className="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+                                >
+                                    <svg className="w-4.5 h-4.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                                    </svg>
+                                    Выйти
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                            <button
+                                onClick={() => { setIsMobileMenuOpen(false); setIsLoginModalOpen(true); }}
+                                className="w-full px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all text-center"
+                            >
+                                Войти в аккаунт
+                            </button>
+                        </div>
+                    )}
+
                     {navLinks.map((link) => (
                         <Link
                             key={link.href}
@@ -136,15 +164,7 @@ export default function Header() {
                             {link.label}
                         </Link>
                     ))}
-                    {user && (
-                        <Link
-                            href="/cabinet"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="block px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
-                        >
-                            Личный кабинет
-                        </Link>
-                    )}                    <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                         <Link
                             href="/generator"
                             onClick={() => setIsMobileMenuOpen(false)}
