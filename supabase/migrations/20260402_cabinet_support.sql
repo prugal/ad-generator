@@ -13,9 +13,18 @@ ALTER TABLE public.payment_intents
 ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'RUB';
 
 -- 3. Allow users to view their own payment intents
-CREATE POLICY "Users can view own payment intents" ON public.payment_intents
-FOR SELECT
-USING ((SELECT auth.uid()) = user_id);
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'payment_intents' 
+    AND policyname = 'Users can view own payment intents'
+  ) THEN
+    CREATE POLICY "Users can view own payment intents" ON public.payment_intents
+    FOR SELECT
+    USING ((SELECT auth.uid()) = user_id);
+  END IF;
+END $$;
 
 -- 4. Create public users table (for cabinet profile)
 CREATE TABLE IF NOT EXISTS public.users (
@@ -30,20 +39,47 @@ CREATE TABLE IF NOT EXISTS public.users (
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
 -- Users can read their own profile
-CREATE POLICY "Users can view own profile" ON public.users
-FOR SELECT
-USING ((SELECT auth.uid()) = id);
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'users' 
+    AND policyname = 'Users can view own profile'
+  ) THEN
+    CREATE POLICY "Users can view own profile" ON public.users
+    FOR SELECT
+    USING ((SELECT auth.uid()) = id);
+  END IF;
+END $$;
 
 -- Users can update their own profile
-CREATE POLICY "Users can update own profile" ON public.users
-FOR UPDATE
-USING ((SELECT auth.uid()) = id)
-WITH CHECK ((SELECT auth.uid()) = id);
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'users' 
+    AND policyname = 'Users can update own profile'
+  ) THEN
+    CREATE POLICY "Users can update own profile" ON public.users
+    FOR UPDATE
+    USING ((SELECT auth.uid()) = id)
+    WITH CHECK ((SELECT auth.uid()) = id);
+  END IF;
+END $$;
 
 -- Users can insert their own profile (on first login)
-CREATE POLICY "Users can insert own profile" ON public.users
-FOR INSERT
-WITH CHECK ((SELECT auth.uid()) = id);
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'users' 
+    AND policyname = 'Users can insert own profile'
+  ) THEN
+    CREATE POLICY "Users can insert own profile" ON public.users
+    FOR INSERT
+    WITH CHECK ((SELECT auth.uid()) = id);
+  END IF;
+END $$;
 
 GRANT SELECT, INSERT, UPDATE ON public.users TO authenticated;
 
@@ -86,4 +122,4 @@ GRANT SELECT ON public.generated_ads TO authenticated;
 DROP POLICY IF EXISTS "Users can view own generated ads" ON public.generated_ads;
 CREATE POLICY "Users can view own generated ads" ON public.generated_ads
 FOR SELECT
-USING ((SELECT auth.uid()) = user_id);
+USING (user_id IS NULL OR user_id = (SELECT auth.uid()));
