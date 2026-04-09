@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuthStore } from '@/services/authStore';
@@ -38,10 +38,11 @@ export default function UserMenu({ onLoginClick }: UserMenuProps) {
     };
     fetchCredits();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user?.id]);
 
-  // Close on outside click
+  // Close on outside click (only when menu is open)
   useEffect(() => {
+    if (!isOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
       if (
         menuRef.current &&
@@ -126,11 +127,10 @@ export default function UserMenu({ onLoginClick }: UserMenuProps) {
       <div
         role="menu"
         aria-orientation="vertical"
-        className={`absolute right-0 top-full mt-2 w-64 rounded-xl bg-white dark:bg-gray-800 shadow-xl shadow-black/10 dark:shadow-black/30 border border-gray-200/80 dark:border-gray-700/80 backdrop-blur-xl transition-all duration-200 origin-top-right z-50 ${
-          isOpen
-            ? 'opacity-100 scale-100 translate-y-0'
-            : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
-        }`}
+        className={`absolute right-0 top-full mt-2 w-64 rounded-xl bg-white dark:bg-gray-800 shadow-xl shadow-black/10 dark:shadow-black/30 border border-gray-200/80 dark:border-gray-700/80 backdrop-blur-xl transition-all duration-200 origin-top-right z-50 ${isOpen
+          ? 'opacity-100 scale-100 translate-y-0'
+          : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+          }`}
       >
         {/* User info header */}
         <div className="p-4 border-b border-gray-100 dark:border-gray-700">
